@@ -1,4 +1,9 @@
 .DS_Store
 .gstack
 .playwright-mcp
+.dist
+.vite
+.cache
+dist
+node_modules
 .vercel

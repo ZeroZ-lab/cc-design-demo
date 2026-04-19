@@ -1,16 +1,13 @@
 # CC Design Demo
 
-Static multi-page design demos for fast preview on Vercel.
+React-based design demo gallery for fast preview on Vercel.
 
 ## Structure
 
-- `index.html`: landing page that links to every public demo route.
-- Root `*.html` files: deployable route entrypoints resolved via Vercel `cleanUrls`.
-- `pages/`: organized working copies of the same page sources.
-- `deck_stage.js`: shared script used by the sketch deck page.
-- `artifacts/legacy/`: original reference snapshots kept out of deploy payloads.
+- `src/`: React app source, route definitions, page wrappers, and shared styles.
 - `artifacts/reference/`: screenshots and motion references kept out of deploy payloads.
-- `vercel.json`: static hosting config.
+- `public/`: optional place for future static assets if routes need shared media.
+- `vercel.json`: SPA rewrite config for Vercel.
 - `.vercelignore`: excludes local tooling and artifacts from deployment uploads.
 
 ## Public Routes
@@ -25,10 +22,10 @@ Static multi-page design demos for fast preview on Vercel.
 
 ## Working Conventions
 
-The root-level files are the public routes. The `pages/` directory mirrors those files so the project stays easier to scan and edit.
+The app now ships as one React bundle with client-side routing. All public routes are native React pages.
 
-If you add a new demo, keep both copies in sync:
+If you add a new demo:
 
-1. Add or update the source file in `pages/`.
-2. Mirror the same content to the matching root-level route file.
-3. Link the new route from `index.html`.
+1. Add a new page component under `src/pages/`.
+2. Register the route in `src/data/routeConfigs.js`.
+3. Link the route from the homepage component in `src/pages/HomePage.jsx`.

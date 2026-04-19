@@ -39,13 +39,13 @@ a {
   text-transform: uppercase;
 }
 
-.home-shell {
+.shell {
   width: min(1180px, calc(100vw - 32px));
   margin: 0 auto;
   padding: 28px 0 56px;
 }
 
-.home-topbar {
+.topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -57,25 +57,25 @@ a {
   backdrop-filter: blur(16px);
 }
 
-.home-brand {
+.brand {
   display: flex;
   align-items: center;
   gap: 14px;
 }
 
-.home-brand strong {
+.brand-copy strong {
   display: block;
   font-family: 'Space Grotesk', sans-serif;
   letter-spacing: 0.08em;
   font-size: 0.98rem;
 }
 
-.home-brand span {
+.brand-copy span {
   font-size: 0.84rem;
   color: rgba(244, 247, 251, 0.68);
 }
 
-.home-brand-mark {
+.brand-mark {
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -83,8 +83,7 @@ a {
   box-shadow: 0 0 24px rgba(73, 216, 255, 0.45);
 }
 
-.home-topbar a,
-.home-actions a {
+.topbar a {
   color: #f4f7fb;
   text-decoration: none;
   font-size: 0.92rem;
@@ -94,7 +93,7 @@ a {
   background: rgba(255, 255, 255, 0.05);
 }
 
-.home-hero {
+.hero {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 24px;
@@ -102,19 +101,19 @@ a {
   padding: 38px 0 28px;
 }
 
-.home-hero-copy,
-.home-hero-meta {
+.hero-copy,
+.hero-meta {
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 28px;
   background: rgba(10, 20, 36, 0.78);
   backdrop-filter: blur(18px);
 }
 
-.home-hero-copy {
+.hero-copy {
   padding: 42px;
 }
 
-.home-eyebrow {
+.eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -127,7 +126,7 @@ a {
   letter-spacing: 0.03em;
 }
 
-.home-eyebrow::before {
+.eyebrow::before {
   content: '';
   width: 8px;
   height: 8px;
@@ -136,7 +135,7 @@ a {
   box-shadow: 0 0 12px rgba(62, 224, 161, 0.6);
 }
 
-.home-hero-copy h1 {
+h1 {
   margin: 22px 0 16px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(2.8rem, 8vw, 5.6rem);
@@ -144,7 +143,7 @@ a {
   letter-spacing: -0.05em;
 }
 
-.home-hero-copy h1 span {
+h1 .accent {
   display: block;
   background: linear-gradient(135deg, #49d8ff, #ffb14a, #ff5f87);
   -webkit-background-clip: text;
@@ -152,7 +151,7 @@ a {
   background-clip: text;
 }
 
-.home-hero-copy p {
+.hero-copy p {
   margin: 0;
   max-width: 44rem;
   color: rgba(244, 247, 251, 0.68);
@@ -160,46 +159,35 @@ a {
   line-height: 1.8;
 }
 
-.home-actions {
+.hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 28px;
 }
 
-.home-actions a.primary {
+.hero-actions a {
+  text-decoration: none;
+  color: #f4f7fb;
+  padding: 13px 18px;
+  border-radius: 14px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-actions a.primary {
   background: linear-gradient(135deg, rgba(73, 216, 255, 0.22), rgba(255, 95, 135, 0.18));
   box-shadow: 0 16px 40px rgba(3, 8, 18, 0.3);
 }
 
-.home-section-head {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 24px;
-  background: rgba(10, 20, 36, 0.72);
-  backdrop-filter: blur(18px);
-}
-
-.home-section-head h2 {
-  margin: 16px 0 10px;
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.04em;
-  line-height: 1.02;
-}
-
-.home-section-head p {
-  margin: 0;
-  color: rgba(244, 247, 251, 0.72);
-  line-height: 1.7;
-}
-
-.home-hero-meta {
+.hero-meta {
   padding: 30px;
   display: grid;
   gap: 16px;
   align-content: start;
 }
 
-.home-meta-card {
+.meta-card {
   padding: 18px 18px 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.05);
@@ -228,41 +216,18 @@ a {
   font-size: 0.92rem;
 }
 
-.home-grid {
+.grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
-.home-section {
-  display: grid;
-  gap: 18px;
-  padding: 8px 0 26px;
-  position: relative;
-}
-
-.home-section-head {
-  padding: 24px;
-}
-
-.home-section-head span {
-  display: inline-block;
-  font-size: 0.74rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: rgba(244, 247, 251, 0.62);
-}
-
-.home-section-head h2 {
-  font-size: clamp(1.8rem, 4vw, 3rem);
-}
-
-.home-card {
+.card {
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-height: 320px;
+  min-height: 360px;
   padding: 24px;
   border-radius: 28px;
   text-decoration: none;
@@ -273,30 +238,62 @@ a {
   transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
 }
 
-.home-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.94;
-  background:
-    radial-gradient(circle at 15% 20%, color-mix(in srgb, white 12%, transparent), transparent 26%),
-    radial-gradient(circle at 85% 18%, color-mix(in srgb, white 10%, transparent), transparent 24%),
-    var(--card-accent);
-  mix-blend-mode: screen;
-}
-
-.home-card > * {
-  position: relative;
-  z-index: 1;
-}
-
-.home-card:hover {
+.card:hover {
   transform: translateY(-6px);
   border-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 30px 72px rgba(2, 8, 16, 0.42);
 }
 
-.home-card-tag {
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+}
+
+.card.enterprise::before {
+  background:
+    radial-gradient(circle at 10% 15%, rgba(255, 95, 135, 0.34), transparent 28%),
+    radial-gradient(circle at 85% 18%, rgba(73, 216, 255, 0.3), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 30%);
+}
+
+.card.scifi::before {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(73, 216, 255, 0.25), transparent 26%),
+    radial-gradient(circle at 82% 24%, rgba(255, 95, 135, 0.22), transparent 24%),
+    linear-gradient(160deg, rgba(0, 240, 255, 0.08), rgba(255, 0, 170, 0.08));
+}
+
+.card.tesla::before {
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 177, 74, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 22%, rgba(232, 33, 39, 0.32), transparent 24%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 40%);
+}
+
+.card.aether::before {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(0, 240, 255, 0.3), transparent 26%),
+    radial-gradient(circle at 85% 18%, rgba(255, 0, 170, 0.28), transparent 24%),
+    radial-gradient(circle at 50% 70%, rgba(123, 47, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 35%);
+}
+
+.card.mech::before {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 136, 0.25), transparent 28%),
+    radial-gradient(circle at 80% 25%, rgba(0, 229, 255, 0.22), transparent 26%),
+    radial-gradient(circle at 50% 80%, rgba(255, 184, 0, 0.12), transparent 30%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 40%);
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.card-tag {
   align-self: flex-start;
   padding: 8px 12px;
   border-radius: 999px;
@@ -305,10 +302,10 @@ a {
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(244, 247, 251, 0.72);
+  color: rgba(244, 247, 251, 0.68);
 }
 
-.home-card h2 {
+.card h2 {
   margin: auto 0 10px;
   font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.7rem);
@@ -316,29 +313,14 @@ a {
   letter-spacing: -0.04em;
 }
 
-.home-card p {
+.card p {
   margin: 0;
   color: rgba(244, 247, 251, 0.72);
   line-height: 1.7;
   font-size: 0.96rem;
 }
 
-.home-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.home-card-tags span {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  font-size: 0.76rem;
-  color: rgba(244, 247, 251, 0.72);
-}
-
-.home-card-footer {
+.card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -349,42 +331,48 @@ a {
   font-size: 0.9rem;
 }
 
-.home-card-footer strong {
+.card-footer strong {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem;
 }
 
+.footer {
+  padding: 28px 4px 0;
+  color: rgba(244, 247, 251, 0.68);
+  font-size: 0.9rem;
+}
+
 @media (max-width: 980px) {
-  .home-hero {
+  .hero {
     grid-template-columns: 1fr;
   }
 
-  .home-grid {
+  .grid {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 720px) {
-  .home-shell {
+  .shell {
     width: min(100vw - 20px, 1180px);
     padding-top: 14px;
   }
 
-  .home-topbar,
-  .home-hero-copy,
-  .home-hero-meta,
-  .home-card {
+  .topbar,
+  .hero-copy,
+  .hero-meta,
+  .card {
     border-radius: 22px;
   }
 
-  .home-topbar {
+  .topbar {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .home-hero-copy,
-  .home-hero-meta,
-  .home-card {
+  .hero-copy,
+  .hero-meta,
+  .card {
     padding: 22px;
   }
 }

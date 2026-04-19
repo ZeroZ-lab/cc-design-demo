@@ -1,91 +1,144 @@
-import { routeConfigs } from '../data/routeConfigs';
-
-const demos = routeConfigs.filter((item) => item.path !== '/');
-const featured = demos.find((item) => item.path === '/llm-sketch-ppt');
-
 export default function HomePage() {
   return (
-    <main className="home-shell">
-      <header className="home-topbar">
-        <div className="home-brand">
-          <div className="home-brand-mark" />
-          <div>
+    <div className="shell">
+      <header className="topbar">
+        <div className="brand">
+          <div className="brand-mark" />
+          <div className="brand-copy">
             <strong>CC DESIGN DEMO</strong>
-            <span>Visual routes, interface experiments, and motion studies</span>
+            <span>Static preview collection deployed on Vercel</span>
           </div>
         </div>
         <a href="#projects">浏览作品</a>
       </header>
 
-      <section className="home-hero">
-        <div className="home-hero-copy">
-          <div className="home-eyebrow">React Visual Collection</div>
+      <section className="hero">
+        <div className="hero-copy">
+          <div className="eyebrow">Multi-page Vercel Preview</div>
           <h1>
-            Seven routes.
-            <span>One simple directory.</span>
+            Six demos.<span className="accent">One entrypoint.</span>
           </h1>
           <p>
-            这里就是一个直接的作品入口页。每张卡片对应一个独立页面，你可以从手绘风的 LLM deck 开始，
-            也可以直接点进品牌页、界面实验页或控制台风格页面。
+            这个站点把六个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
+            适合直接发 Vercel Preview 链接给别人查看。
           </p>
-          <div className="home-actions">
-            <a className="primary" href={featured.path}>
-              先看 {featured.name}
+          <div className="hero-actions">
+            <a className="primary" href="/llm-sketch-ppt">
+              Open LLM Sketch PPT
             </a>
-            <a href="/aether">打开 AETHER</a>
-            <a href="/mech-ops">打开 Mech-Ops</a>
+            <a href="/aether">Open AETHER</a>
+            <a href="/enterprise-hero">Open Enterprise Hero</a>
           </div>
         </div>
 
-        <aside className="home-hero-meta">
-          <div className="home-meta-card">
-            <span className="meta-label">Featured</span>
-            <span className="meta-value">{featured.name}</span>
-            <div className="meta-note">{featured.summary}</div>
+        <aside className="hero-meta">
+          <div className="meta-card">
+            <span className="meta-label">Collection</span>
+            <span className="meta-value">6 static design demos</span>
+            <div className="meta-note">保持原始 HTML 页面不变，通过静态路由暴露稳定访问路径。</div>
           </div>
-          <div className="home-meta-card">
+          <div className="meta-card">
+            <span className="meta-label">Deploy mode</span>
+            <span className="meta-value">Vercel Preview</span>
+            <div className="meta-note">不引入构建链，不使用 SSR，只部署当前目录中的静态文件。</div>
+          </div>
+          <div className="meta-card">
             <span className="meta-label">Routes</span>
-            <span className="meta-value">{demos.length} pages</span>
-            <div className="meta-note">所有作品都从同一个 React 应用路由出去，结构简单，适合直接预览。</div>
-          </div>
-          <div className="home-meta-card">
-            <span className="meta-label">Format</span>
-            <span className="meta-value">Landing + Demos</span>
-            <div className="meta-note">首页只做导航，不再额外分类，点开卡片直接进入对应页面。</div>
+            <span className="meta-value">
+              /, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website, /tesla-3d-website, /aether,
+              /mech-ops
+            </span>
           </div>
         </aside>
       </section>
 
-      <section className="home-section" id="projects">
-        <div className="home-section-head">
-          <span>All Projects</span>
-          <h2>作品目录</h2>
-          <p>每张卡片就是一个独立页面，直接进入即可。</p>
-        </div>
-        <div className="home-grid">
-          {demos.map((item) => (
-            <a
-              key={item.path}
-              href={item.path}
-              className="home-card"
-              style={{ '--card-accent': item.accent }}
-            >
-              <div className="home-card-tag">{item.label}</div>
-              <h2>{item.name}</h2>
-              <p>{item.summary}</p>
-              <div className="home-card-tags">
-                {item.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
-              </div>
-              <div className="home-card-footer">
-                <strong>{item.path}</strong>
-                <span>Open</span>
-              </div>
-            </a>
-          ))}
-        </div>
-      </section>
-    </main>
+      <main className="grid" id="projects">
+        <a className="card enterprise" href="/llm-sketch-ppt">
+          <span className="card-tag">Presentation</span>
+          <h2>
+            LLM
+            <br />
+            Sketch PPT
+          </h2>
+          <p>手绘白板风网页演示，拆解 token、embedding、attention、训练、推理与局限。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/llm-sketch-ppt</strong>
+          </div>
+        </a>
+
+        <a className="card enterprise" href="/enterprise-hero">
+          <span className="card-tag">Enterprise</span>
+          <h2>
+            NOVA
+            <br />
+            Enterprise Hero
+          </h2>
+          <p>高对比渐变、中心舞台式布局和沉浸式氛围，适合作为品牌首屏概念稿。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/enterprise-hero</strong>
+          </div>
+        </a>
+
+        <a className="card scifi" href="/sci-fi-website">
+          <span className="card-tag">Sci-Fi</span>
+          <h2>
+            NEXUS
+            <br />
+            Quantum Interface
+          </h2>
+          <p>霓虹赛博风、扫描线和网格背景，强调科技感和未来交互界面语言。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/sci-fi-website</strong>
+          </div>
+        </a>
+
+        <a className="card tesla" href="/tesla-3d-website">
+          <span className="card-tag">Automotive</span>
+          <h2>
+            Tesla
+            <br />
+            3D Website
+          </h2>
+          <p>偏产品营销页方向，整合 3D 画布、性能叙事和强视觉对比的汽车品牌页面。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/tesla-3d-website</strong>
+          </div>
+        </a>
+
+        <a className="card aether" href="/aether">
+          <span className="card-tag">3D Interactive</span>
+          <h2>
+            AETHER
+            <br />
+            Quantum Particles
+          </h2>
+          <p>5000 颗粒子实时 WebGL 渲染，四种形态无缝变形，鼠标力场交互，单文件零构建。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/aether</strong>
+          </div>
+        </a>
+
+        <a className="card mech" href="/mech-ops">
+          <span className="card-tag">Landscape / Mobile</span>
+          <h2>
+            MECH-OPS
+            <br />
+            管制面板
+          </h2>
+          <p>横屏机动兵器作战管制面板——雷达扫描、实时光学馈送、摇杆操控，手机横屏体验。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/mech-ops</strong>
+          </div>
+        </a>
+      </main>
+
+      <footer className="footer">Preview entry for the local static demo set.</footer>
+    </div>
   );
 }

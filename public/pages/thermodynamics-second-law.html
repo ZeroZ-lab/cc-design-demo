@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热力学第二定律 — 交互式教学</title>
+    <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060a12;
+            --surface: #0c1220;
+            --card: #111a2e;
+            --card-hover: #162035;
+            --border: #1e2d45;
+            --text: #e2e8f0;
+            --muted: #6b7f99;
+            --hot: #ff6b35;
+            --hot-dim: #cc5528;
+            --hot-glow: rgba(255,107,53,0.25);
+            --cold: #3b9eff;
+            --cold-dim: #2d7acc;
+            --cold-glow: rgba(59,158,255,0.25);
+            --accent: #f5a623;
+            --success: #34d399;
+            --entropy-high: #f43f5e;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.7;
+        }
+
+        /* ===== NAV ===== */
+        .nav {
+            position: fixed; top:0; left:0; right:0; z-index:1000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 48px;
+            background: rgba(6,10,18,0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            transition: background 0.3s;
+        }
+        .nav-logo { font-size:18px; font-weight:700; letter-spacing:-0.02em; }
+        .nav-logo span { color: var(--hot); }
+        .nav-links { display:flex; gap:32px; list-style:none; }
+        .nav-links a {
+            font-size:14px; font-weight:500; color:var(--muted);
+            text-decoration:none; transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+
+        /* ===== HERO ===== */
+        .hero {
+            position: relative; min-height:100vh;
+            display:flex; align-items:center; justify-content:center;
+            text-align:center; overflow:hidden;
+        }
+        .hero-canvas {
+            position:absolute; inset:0; z-index:0;
+        }
+        .hero-content {
+            position:relative; z-index:1; max-width:800px; padding:0 24px;
+        }
+        .hero-overline {
+            font-size:14px; font-weight:600; text-transform:uppercase;
+            letter-spacing:0.15em; color:var(--hot); margin-bottom:20px;
+        }
+        .hero h1 {
+            font-size: clamp(48px,8vw,88px); font-weight:700;
+            line-height:1.05; letter-spacing:-0.03em; margin-bottom:24px;
+        }
+        .hero h1 .hl { color: var(--accent); }
+        .hero-sub {
+            font-size: clamp(18px,2.5vw,22px); color:var(--muted);
+            max-width:560px; margin:0 auto 40px; font-weight:300;
+        }
+        .scroll-hint {
+            position:absolute; bottom:40px; left:50%; transform:translateX(-50%);
+            display:flex; flex-direction:column; align-items:center; gap:8px;
+            color:var(--muted); font-size:13px; font-weight:500;
+            animation: float 2.5s ease-in-out infinite;
+        }
+        @keyframes float { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 100px 24px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .section-divider {
+            height:1px; background:linear-gradient(to right, transparent, var(--border), transparent);
+            max-width:600px; margin:0 auto;
+        }
+        .section-label {
+            font-size:13px; font-weight:600; text-transform:uppercase;
+            letter-spacing:0.12em; color:var(--accent); margin-bottom:12px;
+        }
+        .section-title {
+            font-size: clamp(32px,5vw,48px); font-weight:700;
+            line-height:1.15; letter-spacing:-0.02em; margin-bottom:16px;
+        }
+        .section-desc {
+            font-size:18px; color:var(--muted); max-width:640px;
+            margin-bottom:48px; font-weight:300;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            border-color: rgba(255,255,255,0.1);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+
+        /* ===== SIMULATION BOX ===== */
+        .sim-container {
+            position:relative; background:var(--surface);
+            border:1px solid var(--border); border-radius:16px;
+            overflow:hidden;
+        }
+        .sim-canvas { display:block; width:100%; height:400px; }
+        .sim-controls {
+            display:flex; gap:12px; padding:20px 24px;
+            border-top:1px solid var(--border);
+            flex-wrap:wrap; align-items:center;
+        }
+        .btn {
+            padding:10px 20px; border-radius:8px; border:none;
+            font-family:inherit; font-size:14px; font-weight:600;
+            cursor:pointer; transition:all 0.15s;
+        }
+        .btn-hot { background:var(--hot); color:#fff; }
+        .btn-hot:hover { filter:brightness(1.15); box-shadow:0 4px 16px var(--hot-glow); }
+        .btn-cold { background:var(--cold); color:#fff; }
+        .btn-cold:hover { filter:brightness(1.15); box-shadow:0 4px 16px var(--cold-glow); }
+        .btn-ghost {
+            background:transparent; color:var(--muted);
+            border:1px solid var(--border);
+        }
+        .btn-ghost:hover { color:var(--text); border-color:var(--muted); }
+
+        /* ===== ENTROPY METER ===== */
+        .entropy-meter {
+            display:flex; align-items:center; gap:16px;
+            padding:20px 24px; border-top:1px solid var(--border);
+        }
+        .meter-label { font-size:14px; font-weight:500; color:var(--muted); min-width:40px; }
+        .meter-bar {
+            flex:1; height:12px; background:var(--surface);
+            border-radius:6px; overflow:hidden; position:relative;
+        }
+        .meter-fill {
+            height:100%; border-radius:6px; transition:width 0.3s ease, background 0.3s;
+            background: linear-gradient(to right, var(--success), var(--accent), var(--entropy-high));
+        }
+        .meter-value {
+            font-size:14px; font-weight:700; min-width:52px; text-align:right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ===== HEAT ENGINE ===== */
+        .engine-layout {
+            display:grid; grid-template-columns:1fr 1fr; gap:32px;
+            align-items:start;
+        }
+        @media(max-width:768px) { .engine-layout { grid-template-columns:1fr; } }
+        .engine-diagram {
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:16px; padding:24px; position:relative;
+            min-height:360px;
+        }
+        .slider-group { margin-bottom:24px; }
+        .slider-label {
+            display:flex; justify-content:space-between; align-items:baseline;
+            font-size:14px; font-weight:500; margin-bottom:8px;
+        }
+        .slider-label .value { font-weight:700; font-variant-numeric:tabular-nums; }
+        input[type="range"] {
+            width:100%; height:6px; -webkit-appearance:none; appearance:none;
+            background:var(--border); border-radius:3px; outline:none;
+        }
+        input[type="range"].hot-slider::-webkit-slider-thumb {
+            -webkit-appearance:none; width:20px; height:20px;
+            background:var(--hot); border-radius:50%; cursor:pointer;
+            box-shadow: 0 0 10px var(--hot-glow);
+        }
+        input[type="range"].cold-slider::-webkit-slider-thumb {
+            -webkit-appearance:none; width:20px; height:20px;
+            background:var(--cold); border-radius:50%; cursor:pointer;
+            box-shadow: 0 0 10px var(--cold-glow);
+        }
+        .result-box {
+            background: var(--card); border:1px solid var(--border);
+            border-radius:12px; padding:24px; text-align:center;
+        }
+        .result-box .big {
+            font-size:48px; font-weight:700; line-height:1;
+        }
+        .result-box .unit { font-size:18px; font-weight:300; color:var(--muted); margin-top:8px; }
+
+        /* ===== ARROW OF TIME ===== */
+        .timeline-grid {
+            display:grid; grid-template-columns:1fr auto 1fr; gap:24px;
+            align-items:center;
+        }
+        @media(max-width:768px) {
+            .timeline-grid { grid-template-columns:1fr; justify-items:center; }
+        }
+        .time-state {
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:16px; padding:32px; text-align:center; min-height:280px;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .time-state:hover { transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.3); }
+        .time-arrow {
+            font-size:48px; color:var(--muted); display:flex; flex-direction:column;
+            align-items:center; gap:8px;
+        }
+        .time-arrow .label { font-size:13px; font-weight:500; }
+        .state-icon { font-size:56px; margin-bottom:16px; }
+        .state-title { font-size:20px; font-weight:600; margin-bottom:8px; }
+        .state-desc { font-size:14px; color:var(--muted); line-height:1.5; }
+
+        /* ===== EQUATIONS ===== */
+        .equation-grid {
+            display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:24px;
+        }
+        .equation-card {
+            background:var(--card); border:1px solid var(--border);
+            border-radius:16px; padding:32px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .equation-card:hover { transform:translateY(-3px); border-color:var(--accent); }
+        .equation-formula {
+            font-size:28px; font-weight:300; text-align:center;
+            padding:24px 0; letter-spacing:0.02em;
+            font-style: italic;
+        }
+        .equation-name { font-size:16px; font-weight:600; margin-bottom:8px; }
+        .equation-desc { font-size:14px; color:var(--muted); line-height:1.6; }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top:1px solid var(--border);
+            padding:48px 24px; text-align:center;
+            color:var(--muted); font-size:14px;
+        }
+
+        /* ===== REVEAL ANIMATION ===== */
+        .reveal {
+            opacity:0; transform:translateY(32px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        /* ===== ENGINE CANVAS ===== */
+        .engine-canvas { display:block; width:100%; }
+
+        /* ===== LEGEND ===== */
+        .legend { display:flex; gap:24px; padding:12px 24px; font-size:13px; color:var(--muted); }
+        .legend-dot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle; }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ===== REVEAL ON SCROLL =====
+function useReveal() {
+    const ref = useRef(null);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        const obs = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); }
+        }, { threshold: 0.12 });
+        obs.observe(el);
+        return () => obs.disconnect();
+    }, []);
+    return ref;
+}
+
+// ===== HERO PARTICLE BACKGROUND =====
+function HeroBackground() {
+    const canvasRef = useRef(null);
+    const particles = useRef([]);
+    const mouse = useRef({ x: -1000, y: -1000 });
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+        let frame;
+
+        const count = Math.min(180, Math.floor(w * h / 8000));
+        particles.current = Array.from({ length: count }, (_, i) => ({
+            x: Math.random() * w, y: Math.random() * h,
+            vx: (Math.random() - 0.5) * 0.6, vy: (Math.random() - 0.5) * 0.6,
+            r: Math.random() * 2 + 1,
+            hot: i < count / 2
+        }));
+
+        const handleResize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+        const handleMouse = (e) => { mouse.current = { x: e.clientX, y: e.clientY }; };
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('mousemove', handleMouse);
+
+        const draw = () => {
+            ctx.clearRect(0, 0, w, h);
+            const ps = particles.current;
+            const mx = mouse.current.x, my = mouse.current.y;
+
+            for (const p of ps) {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > w) p.vx *= -1;
+                if (p.y < 0 || p.y > h) p.vy *= -1;
+                const dx = mx - p.x, dy = my - p.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) { p.vx += dx * 0.00008; p.vy += dy * 0.00008; }
+            }
+
+            // connections
+            for (let i = 0; i < ps.length; i++) {
+                for (let j = i+1; j < ps.length; j++) {
+                    const dx = ps[i].x - ps[j].x, dy = ps[i].y - ps[j].y;
+                    const d = dx*dx + dy*dy;
+                    if (d < 12000) {
+                        const alpha = (1 - d / 12000) * 0.15;
+                        ctx.beginPath();
+                        ctx.moveTo(ps[i].x, ps[i].y);
+                        ctx.lineTo(ps[j].x, ps[j].y);
+                        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            for (const p of ps) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = p.hot ? 'rgba(255,107,53,0.7)' : 'rgba(59,158,255,0.6)';
+                ctx.fill();
+            }
+            frame = requestAnimationFrame(draw);
+        };
+        draw();
+        return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', handleResize); window.removeEventListener('mousemove', handleMouse); };
+    }, []);
+
+    return <canvas ref={canvasRef} className="hero-canvas" />;
+}
+
+// ===== ENTROPY SIMULATION =====
+function EntropySimulation() {
+    const canvasRef = useRef(null);
+    const psRef = useRef([]);
+    const wallRef = useRef(true);
+    const frameRef = useRef(null);
+    const [wallPresent, setWallPresent] = useState(true);
+    const [entropy, setEntropy] = useState(0);
+    const [speed, setSpeed] = useState(1);
+
+    const initParticles = useCallback(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const w = canvas.width, h = canvas.height;
+        const mid = w / 2;
+        const ps = [];
+        for (let i = 0; i < 40; i++) {
+            ps.push({ x: 20 + Math.random() * (mid - 40), y: 10 + Math.random() * (h - 20), vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, type:'hot', r:5 });
+        }
+        for (let i = 0; i < 40; i++) {
+            ps.push({ x: mid + 20 + Math.random() * (mid - 40), y: 10 + Math.random() * (h - 20), vx: (Math.random()-0.5)*3, vy: (Math.random()-0.5)*3, type:'cold', r:5 });
+        }
+        psRef.current = ps;
+        wallRef.current = true;
+        setWallPresent(true);
+        setEntropy(0);
+    }, []);
+
+    useEffect(() => { initParticles(); }, [initParticles]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let w, h;
+
+        const resize = () => {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            w = canvas.width = rect.width;
+            h = canvas.height = 400;
+        };
+        resize();
+        window.addEventListener('resize', resize);
+
+        const draw = () => {
+            if (!w || !h) { frameRef.current = requestAnimationFrame(draw); return; }
+            const ps = psRef.current;
+            const mid = w / 2;
+            const spd = speed;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // subtle grid
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+            for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+            // update particles
+            for (const p of ps) {
+                p.x += p.vx * spd; p.y += p.vy * spd;
+                if (p.x - p.r < 0) { p.x = p.r; p.vx = Math.abs(p.vx); }
+                if (p.x + p.r > w) { p.x = w - p.r; p.vx = -Math.abs(p.vx); }
+                if (p.y - p.r < 0) { p.y = p.r; p.vy = Math.abs(p.vy); }
+                if (p.y + p.r > h) { p.y = h - p.r; p.vy = -Math.abs(p.vy); }
+                if (wallRef.current) {
+                    if (p.type === 'hot' && p.x + p.r > mid - 2) { p.x = mid - 2 - p.r; p.vx = -Math.abs(p.vx); }
+                    if (p.type === 'cold' && p.x - p.r < mid + 2) { p.x = mid + 2 + p.r; p.vx = Math.abs(p.vx); }
+                }
+            }
+
+            // divider
+            if (wallRef.current) {
+                ctx.beginPath(); ctx.moveTo(mid, 0); ctx.lineTo(mid, h);
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 3; ctx.stroke();
+                // divider glow
+                const grd = ctx.createLinearGradient(mid - 20, 0, mid + 20, 0);
+                grd.addColorStop(0, 'transparent');
+                grd.addColorStop(0.5, 'rgba(255,255,255,0.06)');
+                grd.addColorStop(1, 'transparent');
+                ctx.fillStyle = grd; ctx.fillRect(mid - 20, 0, 40, h);
+            }
+
+            // particles
+            for (const p of ps) {
+                // glow
+                const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 4);
+                grad.addColorStop(0, p.type === 'hot' ? 'rgba(255,107,53,0.25)' : 'rgba(59,158,255,0.25)');
+                grad.addColorStop(1, 'transparent');
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI*2);
+                ctx.fillStyle = grad; ctx.fill();
+
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fillStyle = p.type === 'hot' ? '#ff6b35' : '#3b9eff';
+                ctx.fill();
+            }
+
+            // entropy calc
+            if (ps.length > 0) {
+                const hotLeft = ps.filter(p => p.type === 'hot' && p.x < mid).length;
+                const coldLeft = ps.filter(p => p.type === 'cold' && p.x < mid).length;
+                const hotRight = ps.filter(p => p.type === 'hot' && p.x >= mid).length;
+                const coldRight = ps.filter(p => p.type === 'cold' && p.x >= mid).length;
+                const total = ps.length;
+                // mixing entropy: how mixed are the two types
+                const leftMix = hotLeft + coldLeft > 0 ? Math.min(hotLeft, coldLeft) / (hotLeft + coldLeft) : 0;
+                const rightMix = hotRight + coldRight > 0 ? Math.min(hotRight, coldRight) / (hotRight + coldRight) : 0;
+                const mix = (leftMix + rightMix) / 2;
+                setEntropy(Math.round(mix * 100));
+            }
+
+            frameRef.current = requestAnimationFrame(draw);
+        };
+        draw();
+
+        return () => { cancelAnimationFrame(frameRef.current); window.removeEventListener('resize', resize); };
+    }, [speed]);
+
+    const toggleWall = () => {
+        const next = !wallPresent;
+        wallRef.current = next;
+        setWallPresent(next);
+    };
+
+    const entropyColor = entropy < 33 ? 'var(--success)' : entropy < 66 ? 'var(--accent)' : 'var(--entropy-high)';
+
+    return (
+        <div className="sim-container">
+            <canvas ref={canvasRef} className="sim-canvas" />
+            <div className="legend">
+                <span><span className="legend-dot" style={{background:'var(--hot)'}}></span>高温粒子</span>
+                <span><span className="legend-dot" style={{background:'var(--cold)'}}></span>低温粒子</span>
+            </div>
+            <div className="entropy-meter">
+                <span className="meter-label">熵</span>
+                <div className="meter-bar">
+                    <div className="meter-fill" style={{width:`${entropy}%`}}></div>
+                </div>
+                <span className="meter-value" style={{color: entropyColor}}>{entropy}%</span>
+            </div>
+            <div className="sim-controls">
+                <button className={`btn ${wallPresent ? 'btn-ghost' : 'btn-hot'}`} onClick={toggleWall}>
+                    {wallPresent ? '移除隔板' : '恢复隔板'}
+                </button>
+                <button className="btn btn-ghost" onClick={initParticles}>重置</button>
+                <div style={{flex:1}} />
+                <span style={{fontSize:13, color:'var(--muted)'}}>速度</span>
+                <input type="range" min="0.2" max="3" step="0.1" value={speed}
+                    onChange={e => setSpeed(parseFloat(e.target.value))}
+                    style={{width:100, accentColor:'var(--accent)'}} />
+            </div>
+        </div>
+    );
+}
+
+// ===== HEAT ENGINE =====
+function HeatEngine() {
+    const canvasRef = useRef(null);
+    const frameRef = useRef(null);
+    const [tHot, setTHot] = useState(600);
+    const [tCold, setTCold] = useState(300);
+    const timeRef = useRef(0);
+
+    const efficiency = Math.max(0, (1 - tCold / tHot) * 100);
+    const qHot = tHot;
+    const work = qHot * (1 - tCold / tHot);
+    const qCold = qHot - work;
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.parentElement.clientWidth;
+        const h = canvas.height = 340;
+        let time = 0;
+
+        const draw = () => {
+            time += 0.02;
+            ctx.clearRect(0, 0, w, h);
+            const cx = w / 2, cy = h / 2;
+
+            // Hot reservoir (top)
+            const hotH = 50, hotW = 180;
+            const hotY = 30;
+            const hotGrad = ctx.createLinearGradient(cx - hotW/2, hotY, cx + hotW/2, hotY + hotH);
+            hotGrad.addColorStop(0, '#ff6b35'); hotGrad.addColorStop(1, '#cc4400');
+            ctx.fillStyle = hotGrad;
+            ctx.beginPath(); ctx.roundRect(cx - hotW/2, hotY, hotW, hotH, 8); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.font = '600 14px Space Grotesk';
+            ctx.textAlign = 'center'; ctx.fillText(`热源 T\u2088 = ${tHot}K`, cx, hotY + 32);
+
+            // Cold reservoir (bottom)
+            const coldY = h - 80;
+            const coldGrad = ctx.createLinearGradient(cx - hotW/2, coldY, cx + hotW/2, coldY + hotH);
+            coldGrad.addColorStop(0, '#2d7acc'); coldGrad.addColorStop(1, '#3b9eff');
+            ctx.fillStyle = coldGrad;
+            ctx.beginPath(); ctx.roundRect(cx - hotW/2, coldY, hotW, hotH, 8); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.fillText(`冷源 T\u0480 = ${tCold}K`, cx, coldY + 32);
+
+            // Engine (center)
+            const engH = 60, engW = 120;
+            const engY = cy - engH/2;
+            ctx.fillStyle = '#1a2435'; ctx.strokeStyle = '#f5a623'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(cx - engW/2, engY, engW, engH, 8); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#f5a623'; ctx.font = '600 16px Space Grotesk';
+            ctx.fillText('热机', cx, cy + 6);
+
+            // Animated arrows
+            const arrowPhase = time % 1;
+
+            // Qh arrow (hot → engine)
+            drawFlowArrow(ctx, cx, hotY + hotH, cx, engY, '#ff6b35', arrowPhase, `Q\u2088 = ${qHot.toFixed(0)}`);
+            // Work arrow (engine → right)
+            drawFlowArrow(ctx, cx + engW/2, cy, cx + engW/2 + 70, cy, '#f5a623', arrowPhase, `W = ${work.toFixed(0)}`, true);
+            // Qc arrow (engine → cold)
+            drawFlowArrow(ctx, cx, engY + engH, cx, coldY, '#3b9eff', arrowPhase, `Q\u0480 = ${qCold.toFixed(0)}`);
+
+            frameRef.current = requestAnimationFrame(draw);
+        };
+
+        const drawFlowArrow = (ctx, x1, y1, x2, y2, color, phase, label, horizontal) => {
+            const dx = x2 - x1, dy = y2 - y1;
+            const len = Math.sqrt(dx*dx + dy*dy);
+            const nx = dx / len, ny = dy / len;
+
+            // line
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+            ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.setLineDash([6,4]); ctx.stroke(); ctx.setLineDash([]);
+
+            // moving dots
+            for (let i = 0; i < 3; i++) {
+                const t = ((phase + i * 0.33) % 1);
+                const px = x1 + dx * t, py = y1 + dy * t;
+                ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI*2);
+                ctx.fillStyle = color; ctx.fill();
+            }
+
+            // arrowhead
+            const ax = x2 - nx * 12, ay = y2 - ny * 12;
+            ctx.beginPath(); ctx.moveTo(x2, y2);
+            ctx.lineTo(ax - ny * 6, ay + nx * 6);
+            ctx.lineTo(ax + ny * 6, ay - nx * 6);
+            ctx.fillStyle = color; ctx.fill();
+
+            // label
+            if (horizontal) {
+                ctx.fillStyle = color; ctx.font = '500 12px Space Grotesk';
+                ctx.textAlign = 'center'; ctx.fillText(label, (x1+x2)/2, y1 - 10);
+            } else {
+                ctx.fillStyle = color; ctx.font = '500 12px Space Grotesk';
+                ctx.textAlign = 'left'; ctx.fillText(label, x1 + 14, (y1+y2)/2 + 4);
+            }
+        };
+
+        draw();
+        return () => cancelAnimationFrame(frameRef.current);
+    }, [tHot, tCold]);
+
+    return (
+        <div className="engine-layout">
+            <div>
+                <div className="engine-diagram">
+                    <canvas ref={canvasRef} className="engine-canvas" />
+                </div>
+                <div className="legend" style={{paddingTop:12, fontSize:12}}>
+                    <span><span className="legend-dot" style={{background:'var(--hot)'}}></span>热量流入</span>
+                    <span><span className="legend-dot" style={{background:'var(--accent)'}}></span>做功</span>
+                    <span><span className="legend-dot" style={{background:'var(--cold)'}}></span>热量放出</span>
+                </div>
+            </div>
+            <div>
+                <div className="card" style={{marginBottom:24}}>
+                    <div className="slider-group">
+                        <div className="slider-label">
+                            <span style={{color:'var(--hot)'}}>热源温度 T\u2088</span>
+                            <span className="value" style={{color:'var(--hot)'}}>{tHot} K</span>
+                        </div>
+                        <input type="range" className="hot-slider" min="400" max="1200" value={tHot}
+                            onChange={e => setTHot(parseInt(e.target.value))} />
+                    </div>
+                    <div className="slider-group" style={{marginBottom:0}}>
+                        <div className="slider-label">
+                            <span style={{color:'var(--cold)'}}>冷源温度 T\u0480</span>
+                            <span className="value" style={{color:'var(--cold)'}}>{tCold} K</span>
+                        </div>
+                        <input type="range" className="cold-slider" min="100" max={tHot - 1} value={tCold}
+                            onChange={e => setTCold(parseInt(e.target.value))} />
+                    </div>
+                </div>
+                <div className="result-box">
+                    <div style={{fontSize:14, color:'var(--muted)', marginBottom:8}}>卡诺效率</div>
+                    <div className="big" style={{color:'var(--accent)'}}>{efficiency.toFixed(1)}%</div>
+                    <div className="unit">\u03B7 = 1 \u2212 T\u0480 / T\u2088</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ===== ARROW OF TIME =====
+function ArrowOfTime() {
+    const [phase, setPhase] = useState(0); // 0 = before, 1 = after
+    const canvasRef = useRef(null);
+    const frameRef = useRef(null);
+    const particlesRef = useRef([]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width = canvas.parentElement.clientWidth;
+        const h = canvas.height = 200;
+        const ps = [];
+
+        for (let i = 0; i < 50; i++) {
+            ps.push({
+                x: phase === 0 ? 20 + Math.random() * 60 : Math.random() * w,
+                y: Math.random() * h,
+                vx: (Math.random()-0.5)*2,
+                vy: (Math.random()-0.5)*2,
+                r: 3,
+                targetX: 20 + Math.random() * 60
+            });
+        }
+        particlesRef.current = ps;
+
+        const draw = () => {
+            ctx.clearRect(0, 0, w, h);
+            for (const p of ps) {
+                if (phase === 0) {
+                    p.x += (p.targetX - p.x) * 0.05;
+                } else {
+                    p.x += p.vx; p.y += p.vy;
+                    if (p.x < 0 || p.x > w) p.vx *= -1;
+                    if (p.y < 0 || p.y > h) p.vy *= -1;
+                }
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fillStyle = phase === 0 ? '#34d399' : '#f43f5e';
+                ctx.fill();
+            }
+            frameRef.current = requestAnimationFrame(draw);
+        };
+        draw();
+        return () => cancelAnimationFrame(frameRef.current);
+    }, [phase]);
+
+    return (
+        <div>
+            <div className="sim-container" style={{marginBottom:32}}>
+                <canvas ref={canvasRef} className="sim-canvas" style={{height:200}} />
+                <div className="sim-controls">
+                    <button className={`btn ${phase===0 ? 'btn-hot' : 'btn-ghost'}`}
+                        onClick={() => setPhase(0)}>有序状态</button>
+                    <button className={`btn ${phase===1 ? 'btn-hot' : 'btn-ghost'}`}
+                        onClick={() => setPhase(1)}>自然演化</button>
+                </div>
+            </div>
+            <div className="timeline-grid">
+                <div className="time-state" style={{borderColor: phase===0 ? 'var(--success)' : 'var(--border)'}}>
+                    <div className="state-icon">
+                        <svg width="56" height="56" viewBox="0 0 56 56">
+                            <rect x="4" y="4" width="20" height="20" rx="3" fill="#34d399" opacity="0.8"/>
+                            <rect x="28" y="4" width="20" height="20" rx="3" fill="#34d399" opacity="0.5"/>
+                            <rect x="4" y="28" width="20" height="20" rx="3" fill="#34d399" opacity="0.5"/>
+                            <rect x="28" y="28" width="20" height="20" rx="3" fill="#34d399" opacity="0.3"/>
+                        </svg>
+                    </div>
+                    <div className="state-title" style={{color:'var(--success)'}}>低熵 · 有序</div>
+                    <div className="state-desc">系统处于高度有序状态，粒子集中在局部区域，微观状态数极少</div>
+                </div>
+                <div className="time-arrow">
+                    <svg width="40" height="40" viewBox="0 0 40 40"><path d="M8 20h24M26 12l8 8-8 8" stroke="currentColor" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <div className="label">不可逆</div>
+                    <svg width="40" height="40" viewBox="0 0 40 40"><path d="M32 20H8M14 12l-8 8 8 8" stroke="var(--entropy-high)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.3" strokeDasharray="4 3"/></svg>
+                </div>
+                <div className="time-state" style={{borderColor: phase===1 ? 'var(--entropy-high)' : 'var(--border)'}}>
+                    <div className="state-icon">
+                        <svg width="56" height="56" viewBox="0 0 56 56">
+                            <circle cx="14" cy="12" r="5" fill="#f43f5e" opacity="0.6"/>
+                            <circle cx="38" cy="8" r="4" fill="#f43f5e" opacity="0.4"/>
+                            <circle cx="10" cy="38" r="6" fill="#f43f5e" opacity="0.5"/>
+                            <circle cx="32" cy="34" r="3" fill="#f43f5e" opacity="0.7"/>
+                            <circle cx="44" cy="44" r="5" fill="#f43f5e" opacity="0.3"/>
+                            <circle cx="20" cy="24" r="4" fill="#f43f5e" opacity="0.6"/>
+                        </svg>
+                    </div>
+                    <div className="state-title" style={{color:'var(--entropy-high)'}}>高熵 · 无序</div>
+                    <div className="state-desc">系统自然演化至无序状态，粒子弥散分布，微观状态数极大</div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// ===== EQUATIONS SECTION =====
+function Equations() {
+    const equations = [
+        { formula: '\u0394S \u2265 0', name: '熵增原理', desc: '孤立系统的熵永不减少。在不可逆过程中，熵总是增加的。这是自然界最基本的不可逆性判据。' },
+        { formula: '\u03B7 = 1 \u2212 T\u0480 / T\u2088', name: '卡诺效率', desc: '所有工作在两个热源之间的热机，其效率不可能超过卡诺效率。这是热力学第二定律的直接推论。' },
+        { formula: 'dS = \u03B4Q / T', name: '克劳修斯等式', desc: '可逆过程中，系统熵的变化等于吸收的热量除以温度。熵变是热量与温度的商——这就是"熵"这个名字的由来。' },
+    ];
+
+    return (
+        <div className="equation-grid">
+            {equations.map((eq, i) => (
+                <div className="equation-card" key={i}>
+                    <div className="equation-formula">{eq.formula}</div>
+                    <div className="equation-name">{eq.name}</div>
+                    <div className="equation-desc">{eq.desc}</div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
+// ===== NAV =====
+function NavBar() {
+    const [scrolled, setScrolled] = useState(false);
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+    return (
+        <nav className="nav" style={scrolled ? {background:'rgba(6,10,18,0.95)'} : {}}>
+            <div className="nav-logo">热力学<span>第二定律</span></div>
+            <ul className="nav-links">
+                <li><a href="#entropy">熵</a></li>
+                <li><a href="#engine">热机</a></li>
+                <li><a href="#time">时间之箭</a></li>
+                <li><a href="#equations">公式</a></li>
+            </ul>
+        </nav>
+    );
+}
+
+// ===== MAIN APP =====
+function App() {
+    const entropyReveal = useReveal();
+    const engineReveal = useReveal();
+    const timeReveal = useReveal();
+    const eqReveal = useReveal();
+
+    return (
+        <div>
+            <NavBar />
+
+            <section className="hero">
+                <HeroBackground />
+                <div className="hero-content">
+                    <div className="hero-overline">Interactive Thermodynamics</div>
+                    <h1>热力学<br/><span className="hl">第二定律</span></h1>
+                    <p className="hero-sub">
+                        宇宙中最不可抗拒的法则——熵永远增加，时间只朝一个方向流淌。
+                        通过交互式模拟，亲手探索这条支配万物运行的铁律。
+                    </p>
+                </div>
+                <div className="scroll-hint">
+                    <span>向下滚动探索</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20"><path d="M10 4v12m-6-6l6 6 6-6" stroke="currentColor" strokeWidth="1.5" fill="none"/></svg>
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            <section className="section" id="entropy" data-screen-label="01 Entropy">
+                <div className="reveal" ref={entropyReveal}>
+                    <div className="section-label">01 / 熵的概念</div>
+                    <h2 className="section-title">从有序到无序</h2>
+                    <p className="section-desc">
+                        熵是衡量系统无序程度的物理量。移除隔板后，高温粒子与低温粒子将自发混合——
+                        这是不可逆过程，因为逆向过程（自发分离）在统计上几乎不可能发生。
+                    </p>
+                    <EntropySimulation />
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            <section className="section" id="engine" data-screen-label="02 Heat Engine">
+                <div className="reveal" ref={engineReveal}>
+                    <div className="section-label">02 / 热机与效率</div>
+                    <h2 className="section-title">卡诺定理：效率的上限</h2>
+                    <p className="section-desc">
+                        热机从高温热源吸收热量，一部分转化为功，其余释放给低温热源。
+                        第二定律告诉我们：没有任何热机能达到100%效率。调节温度，观察能量流动的变化。
+                    </p>
+                    <HeatEngine />
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            <section className="section" id="time" data-screen-label="03 Arrow of Time">
+                <div className="reveal" ref={timeReveal}>
+                    <div className="section-label">03 / 时间之箭</div>
+                    <h2 className="section-title">为何时间只向前流逝？</h2>
+                    <p className="section-desc">
+                        热力学第二定律定义了时间的方向：从低熵到高熵，从有序到无序。
+                        打碎的杯子不会自动复原，泼出的水不会自动归位——因为逆向过程意味着熵减少，这在自然界中几乎不会自发发生。
+                    </p>
+                    <ArrowOfTime />
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            <section className="section" id="equations" data-screen-label="04 Equations">
+                <div className="reveal" ref={eqReveal}>
+                    <div className="section-label">04 / 核心公式</div>
+                    <h2 className="section-title">数学语言中的第二定律</h2>
+                    <p className="section-desc">
+                        三条核心公式，从不同角度描述同一条自然法则。
+                    </p>
+                    <Equations />
+                </div>
+            </section>
+
+            <footer className="footer">
+                <p>热力学第二定律 — 交互式教学演示</p>
+                <p style={{marginTop:8, fontSize:12, opacity:0.5}}>所有模拟均在浏览器中实时计算运行</p>
+            </footer>
+        </div>
+    );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

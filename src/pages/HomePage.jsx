@@ -1,13 +1,7 @@
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { routeConfigs } from '../data/routeConfigs';
 
-const demoRoutes = routeConfigs.filter((item) => item.path !== '/');
-const featuredPaths = ['/mars-landing', '/spacex-official', '/llm-sketch-ppt'];
-const featuredRoutes = featuredPaths
-  .map((path) => demoRoutes.find((item) => item.path === path))
-  .filter(Boolean);
-const archiveRoutes = demoRoutes.filter((item) => !featuredPaths.includes(item.path));
-const uniqueTags = new Set(demoRoutes.flatMap((item) => item.tags));
-const routeCount = demoRoutes.length;
+const demos = routeConfigs.filter((item) => item.path !== '/');
 
 const toneByPath = {
   '/mars-landing': 'cryo',
@@ -19,179 +13,216 @@ const toneByPath = {
   '/aether': 'prism',
   '/mech-ops': 'tactical',
   '/retro-pixel': 'arcade',
-  '/glassmorphism-dashboard': 'glass'
+  '/glassmorphism-dashboard': 'glass',
+  '/banking-app': 'signal',
+  '/thermodynamics': 'thermal',
 };
 
-function getRouteTone(path) {
-  return toneByPath[path] ?? 'signal';
+/* ===== Hero animated canvas ===== */
+function HeroCanvas() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let frame, time = 0;
+
+    const orbs = [
+      { x: 0.18, y: 0.3, r: 0.5, speed: 0.4, color: [0, 210, 255] },
+      { x: 0.72, y: 0.45, r: 0.55, speed: 0.3, color: [100, 50, 255] },
+      { x: 0.45, y: 0.6, r: 0.45, speed: 0.35, color: [0, 240, 180] },
+      { x: 0.85, y: 0.25, r: 0.3, speed: 0.5, color: [140, 100, 255] },
+    ];
+
+    const dots = Array.from({ length: 80 }, () => ({
+      x: Math.random(), y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.0006,
+      vy: (Math.random() - 0.5) * 0.0004,
+      r: Math.random() * 1.8 + 0.4,
+      a: Math.random() * 0.6 + 0.1,
+      phase: Math.random() * Math.PI * 2,
+    }));
+
+    let cw = 0, ch = 0;
+
+    const resize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cw = rect.width; ch = rect.height;
+      canvas.width = cw * dpr; canvas.height = ch * dpr;
+      canvas.style.width = cw + 'px'; canvas.style.height = ch + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    const draw = () => {
+      time += 0.008;
+      ctx.clearRect(0, 0, cw, ch);
+
+      // Animated orbs with sinusoidal motion
+      for (let i = 0; i < orbs.length; i++) {
+        const orb = orbs[i];
+        const cx = (orb.x + Math.sin(time * orb.speed + i * 1.8) * 0.12) * cw;
+        const cy = (orb.y + Math.cos(time * orb.speed * 0.7 + i * 2.3) * 0.1) * ch;
+        const rr = (orb.r + Math.sin(time * 0.5 + i) * 0.05) * Math.max(cw, ch);
+        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
+        const [r, g, b] = orb.color;
+        grad.addColorStop(0, `rgba(${r},${g},${b},0.35)`);
+        grad.addColorStop(0.25, `rgba(${r},${g},${b},0.18)`);
+        grad.addColorStop(0.5, `rgba(${r},${g},${b},0.06)`);
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, cw, ch);
+      }
+
+      // Particles with pulsing opacity
+      for (const d of dots) {
+        d.x += d.vx; d.y += d.vy;
+        if (d.x < 0 || d.x > 1) d.vx *= -1;
+        if (d.y < 0 || d.y > 1) d.vy *= -1;
+        const pulse = 0.5 + 0.5 * Math.sin(time * 2 + d.phase);
+        const alpha = d.a * (0.4 + pulse * 0.6);
+        ctx.beginPath();
+        ctx.arc(d.x * cw, d.y * ch, d.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(120,210,255,${alpha})`;
+        ctx.fill();
+      }
+
+      // Particle connections
+      ctx.lineWidth = 0.6;
+      for (let i = 0; i < dots.length; i++) {
+        for (let j = i + 1; j < dots.length; j++) {
+          const dx = (dots[i].x - dots[j].x) * cw;
+          const dy = (dots[i].y - dots[j].y) * ch;
+          const dist = dx * dx + dy * dy;
+          if (dist < 10000) {
+            const alpha = (1 - dist / 10000) * 0.12;
+            ctx.beginPath();
+            ctx.moveTo(dots[i].x * cw, dots[i].y * ch);
+            ctx.lineTo(dots[j].x * cw, dots[j].y * ch);
+            ctx.strokeStyle = `rgba(100,200,255,${alpha})`;
+            ctx.stroke();
+          }
+        }
+      }
+
+      frame = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => { cancelAnimationFrame(frame); window.removeEventListener('resize', resize); };
+  }, []);
+
+  return <canvas ref={canvasRef} className="index-hero-canvas" />;
 }
 
-export default function HomePage() {
+/* ===== Scroll reveal hook ===== */
+function useScrollReveal() {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVisible(true); obs.disconnect(); }
+    }, { threshold: 0.08 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+/* ===== Card with stagger ===== */
+function Card({ item, tone, index }) {
+  const [ref, visible] = useScrollReveal();
   return (
-    <div className="overview-page">
-      <div className="overview-noise" />
+    <a
+      ref={ref}
+      className={`index-card ${tone}`}
+      href={item.path}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(32px)',
+        transitionDelay: `${(index % 3) * 80 + Math.floor(index / 3) * 40}ms`,
+      }}
+    >
+      <div className="index-card-head">
+        <span className="index-card-label">{item.label}</span>
+        <span className="index-card-path">{item.path}</span>
+      </div>
+      <h2>{item.name}</h2>
+      <p>{item.summary}</p>
+      <div className="index-card-tags">
+        {item.tags.slice(0, 3).map((tag) => (
+          <span key={tag}>{tag}</span>
+        ))}
+      </div>
+    </a>
+  );
+}
 
-      <header className="overview-topbar">
-        <div className="overview-topbar-inner">
-          <a className="overview-brand" href="/">
-            <span className="overview-brand-mark">CC</span>
-            <span className="overview-brand-copy">
-              <strong>CC Design Demo</strong>
-              <span>Curated visual experiments in one React shell</span>
-            </span>
-          </a>
+/* ===== Main page ===== */
+export default function HomePage() {
+  const gridRef = useRef(null);
+  const [heroVisible, setHeroVisible] = useState(false);
 
-          <nav className="overview-nav" aria-label="Homepage sections">
-            <a href="#featured">Featured</a>
-            <a href="#archive">Archive</a>
-            <a href="/mars-landing">Latest drop</a>
-          </nav>
-        </div>
+  useEffect(() => { setHeroVisible(true); }, []);
+
+  const handleGridMouseMove = useCallback((e) => {
+    const cards = gridRef.current?.querySelectorAll('.index-card');
+    if (!cards) return;
+    for (const card of cards) {
+      const rect = card.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      card.style.setProperty('--mx', x + '%');
+      card.style.setProperty('--my', y + '%');
+    }
+  }, []);
+
+  return (
+    <div className="index-page">
+      <div className="index-noise" />
+
+      <header className="index-header">
+        <a className="index-brand" href="/">
+          <span className="index-brand-mark">CC</span>
+          <div className="index-brand-copy">
+            <strong>CC Design Demo</strong>
+            <span>{demos.length} visual experiments</span>
+          </div>
+        </a>
+        <a className="index-latest" href="/thermodynamics">Latest drop</a>
       </header>
 
-      <main className="overview-shell">
-        <section className="overview-hero">
-          <div className="overview-hero-copy">
-            <div className="overview-kicker">Design vault / 2026 selection</div>
+      <main className="index-main">
+        <section className="index-hero">
+          <HeroCanvas />
+          <div className={`index-hero-content ${heroVisible ? 'revealed' : ''}`}>
+            <span className="index-hero-kicker">Design vault / 2026</span>
             <h1>
               A launchpad for
-              <span> cinematic one-off interfaces.</span>
+              <span>cinematic one-off interfaces.</span>
             </h1>
-            <p>
-              这是一个把高保真概念页集中编排的入口，不再只是“作品链接列表”。首页负责做策展：
-              先给出气质，再给出精选，再把全部实验按强视觉类别整理成可快速浏览的档案。
-            </p>
-
-            <div className="overview-hero-actions">
-              <a className="overview-button primary" href="/mars-landing">
-                Enter ARES I
-              </a>
-              <a className="overview-button" href="#featured">
-                Browse highlights
-              </a>
-            </div>
-          </div>
-
-          <aside className="overview-hero-aside">
-            <div className="overview-signal-card">
-              <span className="eyebrow">Collection status</span>
-              <strong>{routeCount} live demos</strong>
-              <p>由同一套 React 路由托管，每个页面保留独立 URL，适合直接分享预览链接。</p>
-            </div>
-
-            <div className="overview-stat-grid">
-              <div className="overview-stat-card">
-                <span className="label">Formats</span>
-                <strong>Landing / Deck / HUD</strong>
-              </div>
-              <div className="overview-stat-card">
-                <span className="label">Tags</span>
-                <strong>{uniqueTags.size} visual signals</strong>
-              </div>
-              <div className="overview-stat-card">
-                <span className="label">Deploy</span>
-                <strong>Vercel-ready</strong>
-              </div>
-            </div>
-          </aside>
-        </section>
-
-        <section className="overview-featured" id="featured">
-          <div className="overview-section-head">
-            <div>
-              <span className="eyebrow">Featured drops</span>
-              <h2>Three pages that set the tone.</h2>
-            </div>
-            <p>
-              不把所有作品平铺到第一屏，而是先挑出三种最不同的表达方式：史诗航天、克制品牌、手绘讲解。
-            </p>
-          </div>
-
-          <div className="overview-feature-grid">
-            {featuredRoutes.map((item, index) => (
-              <a key={item.path} className={`feature-card ${getRouteTone(item.path)}`} href={item.path}>
-                <div className="feature-meta">
-                  <span className="feature-index">0{index + 1}</span>
-                  <span className="feature-path">{item.path}</span>
-                </div>
-                <div className="feature-body">
-                  <span className="feature-label">{item.label}</span>
-                  <h3>{item.title}</h3>
-                  <p>{item.summary}</p>
-                </div>
-                <div className="feature-tags">
-                  {item.tags.slice(0, 3).map((tag) => (
-                    <span key={tag}>{tag}</span>
-                  ))}
-                </div>
-              </a>
-            ))}
+            <p>高保真概念页集中编排的入口。每个页面保留独立 URL，适合直接分享预览链接。</p>
           </div>
         </section>
 
-        <section className="overview-runway">
-          <div className="overview-section-head compact">
-            <div>
-              <span className="eyebrow">Collection logic</span>
-              <h2>One shell, many moods.</h2>
-            </div>
-          </div>
-
-          <div className="overview-runway-grid">
-            <article className="runway-panel">
-              <span className="eyebrow">Why this homepage</span>
-              <p>
-                旧首页的问题不是信息不够，而是所有作品同权。新版本把首页设计成目录页和品牌页的混合体，
-                先建立语气，再允许用户进入每一条分支。
-              </p>
-            </article>
-
-            <article className="runway-panel">
-              <span className="eyebrow">Visual spectrum</span>
-              <ul>
-                <li>Editorial aerospace and launch storytelling</li>
-                <li>Cyber interfaces, tactical HUDs, and 3D concept scenes</li>
-                <li>Sketch-style explanation decks and tactile retro systems</li>
-              </ul>
-            </article>
-
-            <article className="runway-panel emphasis">
-              <span className="eyebrow">Latest addition</span>
-              <strong>ARES I / Mars Landing</strong>
-              <p>作为当前集合里最完整的一页，它被放在首页首推位，并承担新视觉基调。</p>
-              <a href="/mars-landing">Open latest mission</a>
-            </article>
-          </div>
-        </section>
-
-        <section className="overview-archive" id="archive">
-          <div className="overview-section-head">
-            <div>
-              <span className="eyebrow">Full archive</span>
-              <h2>Every route, still one click away.</h2>
-            </div>
-            <p>全部作品保留独立 URL，但编排从“均匀卡片墙”改成更像设计目录的卡片档案。</p>
-          </div>
-
-          <div className="overview-archive-grid">
-            {archiveRoutes.map((item) => (
-              <a key={item.path} className={`archive-card ${getRouteTone(item.path)}`} href={item.path}>
-                <span className="archive-label">{item.label}</span>
-                <h3>{item.name}</h3>
-                <p>{item.summary}</p>
-                <div className="archive-footer">
-                  <span>{item.path}</span>
-                  <span>{item.tags[0]}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
+        <div className="index-grid" ref={gridRef} onMouseMove={handleGridMouseMove}>
+          {demos.map((item, i) => (
+            <Card
+              key={item.path}
+              item={item}
+              tone={toneByPath[item.path] ?? 'signal'}
+              index={i}
+            />
+          ))}
+        </div>
       </main>
 
-      <footer className="overview-footer">
-        <span>CC Design Demo / {routeCount} routes</span>
-        <span>Built as a React collection shell for static visual experiments</span>
+      <footer className="index-footer">
+        <span>CC Design Demo / {demos.length} routes</span>
       </footer>
     </div>
   );

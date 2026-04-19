@@ -11,6 +11,7 @@ const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
 const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
 const BankingAppPage = lazy(() => import('../pages/BankingAppPage'));
+const ThermodynamicsPage = lazy(() => import('../pages/ThermodynamicsPage'));
 
 export const routeConfigs = [
   {
@@ -122,6 +123,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #4fc3f7, #b388ff)',
     tags: ['Glassmorphism', '3D tilt', 'Parallax', 'Data viz'],
     component: GlassmorphismDashboardPage
+  },
+  {
+    path: '/thermodynamics',
+    title: '热力学第二定律 — 交互式教学',
+    label: 'Thermodynamics',
+    name: '热力学第二定律',
+    summary: '交互式物理教学网站，通过粒子模拟、卡诺热机和时间之箭展示热力学第二定律。',
+    accent: 'linear-gradient(135deg, #ff6b35, #3b9eff)',
+    tags: ['Interactive', 'Physics', 'Canvas', 'Education'],
+    component: ThermodynamicsPage
   },
   {
     path: '/banking-app',

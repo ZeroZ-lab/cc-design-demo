@@ -6,6 +6,7 @@ const EnterpriseHeroPage = lazy(() => import('../pages/EnterpriseHeroPage'));
 const SciFiWebsitePage = lazy(() => import('../pages/SciFiWebsitePage'));
 const Tesla3dPage = lazy(() => import('../pages/Tesla3dPage'));
 const SpaceXOfficialPage = lazy(() => import('../pages/SpaceXOfficialPage'));
+const MarsLandingPage = lazy(() => import('../pages/MarsLandingPage'));
 const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
 const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
@@ -16,7 +17,7 @@ export const routeConfigs = [
     title: 'CC Design Demo',
     label: 'Overview',
     name: 'CC Design Demo',
-    summary: '八个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
+    summary: '九个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
     accent: 'linear-gradient(135deg, #49d8ff, #ff5f87)',
     tags: ['React shell', 'Multi-route', 'Vercel-ready'],
     component: HomePageFallback
@@ -80,6 +81,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #ffffff, #6b87b8)',
     tags: ['Aerospace', 'Editorial', 'Minimal'],
     component: SpaceXOfficialPage
+  },
+  {
+    path: '/mars-landing',
+    title: 'ARES I — First Footprint on Mars',
+    label: 'Mars Landing',
+    name: 'ARES I',
+    summary: '电影级火星登陆品牌发布页，强调红色地平线、倒计时和首次踏足火星的任务叙事。',
+    accent: 'linear-gradient(135deg, #f1c48b, #c96e46)',
+    tags: ['Mars', 'Launch page', 'Editorial', 'Cinematic'],
+    component: MarsLandingPage
   },
   {
     path: '/mech-ops',

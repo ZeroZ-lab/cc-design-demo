@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS Bank — Cyberpunk Banking App</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #06060e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Space Grotesk', sans-serif;
+    overflow: hidden;
+  }
+
+  .bg-grid {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(60px, 60px); }
+  }
+
+  .phone-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+  .phone-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.08) 0%, rgba(139, 92, 246, 0.04) 40%, transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  /* Scrollable content area */
+  .scroll-area {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .scroll-area::-webkit-scrollbar { display: none; }
+
+  /* Glow utilities */
+  .glow-cyan {
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.15), 0 0 60px rgba(0, 240, 255, 0.05);
+  }
+  .glow-purple {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
+  }
+
+  /* Subtle scanlines — no z-index, no interaction blocking */
+  .scanlines::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 240, 255, 0.006) 2px,
+      rgba(0, 240, 255, 0.006) 4px
+    );
+    pointer-events: none;
+    z-index: 50;
+    border-radius: inherit;
+  }
+
+  /* ─── Keyframes ─── */
+  @keyframes shimmer {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 4px currentColor; }
+    50% { box-shadow: 0 0 12px currentColor; }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes ring-fill {
+    from { stroke-dashoffset: var(--circ); }
+    to { stroke-dashoffset: var(--offset); }
+  }
+  @keyframes float-y {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  /* Entrance animation helper */
+  .anim-in {
+    animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Interactive card/button */
+  .tap {
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .tap:hover {
+    transform: translateY(-1px);
+  }
+  .tap:active {
+    transform: scale(0.96);
+    transition-duration: 0.08s;
+  }
+
+  /* Quick action icon float */
+  .action-icon {
+    animation: float-y 3s ease-in-out infinite;
+  }
+  .action-icon:nth-child(2) { animation-delay: 0.4s; }
+  .action-icon:nth-child(3) { animation-delay: 0.8s; }
+  .action-icon:nth-child(4) { animation-delay: 1.2s; }
+
+  /* Notification badge pulse */
+  .notif-dot {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Balance text transition */
+  .balance-text {
+    transition: opacity 0.3s ease, filter 0.3s ease;
+  }
+  .balance-text.hiding {
+    opacity: 0;
+    filter: blur(8px);
+  }
+
+  /* Tab indicator slide */
+  .tab-indicator {
+    transition: left 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Transaction row hover */
+  .tx-row {
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+  }
+  .tx-row:hover {
+    background: rgba(15, 20, 40, 0.85) !important;
+    border-color: rgba(0, 240, 255, 0.08) !important;
+  }
+
+  /* Card hover glow */
+  .card-glow {
+    transition: box-shadow 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  }
+  .card-glow:hover {
+    border-color: rgba(0, 240, 255, 0.3) !important;
+  }
+
+  /* Horizontal scroll for card carousel */
+  .card-carousel {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding: 0 16px;
+  }
+  .card-carousel::-webkit-scrollbar { display: none; }
+  .card-carousel > div { scroll-snap-align: start; flex-shrink: 0; }
+
+  /* Bar chart grow animation */
+  @keyframes bar-grow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+  .bar-anim {
+    transform-origin: bottom;
+    animation: bar-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Progress bar fill */
+  @keyframes progress-fill {
+    from { width: 0; }
+  }
+  .progress-anim {
+    animation: progress-fill 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Settings row */
+  .settings-row {
+    transition: background 0.2s ease;
+    cursor: pointer;
+  }
+  .settings-row:hover {
+    background: rgba(0, 240, 255, 0.04);
+  }
+
+  /* Page transition */
+  .page-enter {
+    animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ─── Design Tokens ─── */
+const T = {
+  bg:          '#0a0e1a',
+  bgCard:      'rgba(15, 20, 40, 0.85)',
+  bgCardHover: 'rgba(20, 28, 55, 0.9)',
+  surface:     'rgba(22, 30, 56, 0.6)',
+  cyan:        '#00f0ff',
+  cyanDim:     'rgba(0, 240, 255, 0.15)',
+  cyanMuted:   'rgba(0, 240, 255, 0.4)',
+  purple:      '#8b5cf6',
+  purpleDim:   'rgba(139, 92, 246, 0.15)',
+  pink:        '#ec4899',
+  green:       '#22d3ee',
+  greenBright: '#34d399',
+  red:         '#f43f5e',
+  orange:      '#f97316',
+  text:        '#e8eaf0',
+  textDim:     'rgba(200, 210, 230, 0.5)',
+  textMuted:   'rgba(200, 210, 230, 0.35)',
+  border:      'rgba(0, 240, 255, 0.08)',
+  borderBright:'rgba(0, 240, 255, 0.2)',
+};
+
+/* ─── SVG Icons ─── */
+const Icons = {
+  scan: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2"/>
+      <line x1="7" y1="12" x2="17" y2="12"/>
+    </svg>
+  ),
+  send: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="22" y1="2" x2="11" y2="13"/>
+      <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+  ),
+  pay: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+      <line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+  ),
+  topup: (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <polyline points="19 12 12 19 5 12"/>
+      <circle cx="12" cy="12" r="10"/>
+    </svg>
+  ),
+  home: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+      <polyline points="9 22 9 12 15 12 15 22"/>
+    </svg>
+  ),
+  card: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="1" y="4" width="22" height="16" rx="2"/>
+      <line x1="1" y1="10" x2="23" y2="10"/>
+    </svg>
+  ),
+  stats: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+  ),
+  user: (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  ),
+  bell: (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+      <path d="M13.73 21a2 2 0 01-3.46 0"/>
+    </svg>
+  ),
+  chevronRight: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
+  ),
+  shield: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  ),
+  wifi: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/>
+    </svg>
+  ),
+  eye: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  ),
+  eyeOff: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 01-4.24-4.24"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  ),
+  chip: (
+    <svg width="36" height="28" viewBox="0 0 36 28" fill="none">
+      <rect x="1" y="1" width="34" height="26" rx="4" stroke="rgba(0,240,255,0.3)" strokeWidth="1"/>
+      <line x1="12" y1="1" x2="12" y2="27" stroke="rgba(0,240,255,0.15)" strokeWidth="0.5"/>
+      <line x1="24" y1="1" x2="24" y2="27" stroke="rgba(0,240,255,0.15)" strokeWidth="0.5"/>
+      <line x1="1" y1="14" x2="35" y2="14" stroke="rgba(0,240,255,0.15)" strokeWidth="0.5"/>
+      <rect x="6" y="6" width="24" height="16" rx="2" fill="rgba(0,240,255,0.06)" stroke="rgba(0,240,255,0.2)" strokeWidth="0.5"/>
+    </svg>
+  ),
+  contactless: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M8.5 16.5a5 5 0 017 0"/>
+      <path d="M6 14a8 8 0 0112 0"/>
+      <path d="M3.5 11.5a11 11 0 0117 0"/>
+    </svg>
+  ),
+};
+
+/* ─── Animated Data Ring ─── */
+function DataRing({ size = 120, strokeWidth = 6, value = 0.72, color = T.cyan, delay = 0 }) {
+  const radius = (size - strokeWidth) / 2;
+  const circ = 2 * Math.PI * radius;
+  const targetOffset = circ * (1 - value);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 300 + delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <circle
+        cx={size/2} cy={size/2} r={radius}
+        fill="none" stroke="rgba(0,240,255,0.06)" strokeWidth={strokeWidth}
+      />
+      <circle
+        cx={size/2} cy={size/2} r={radius}
+        fill="none" stroke={color} strokeWidth={strokeWidth}
+        strokeDasharray={circ}
+        strokeDashoffset={mounted ? targetOffset : circ}
+        strokeLinecap="round"
+        style={{
+          transition: 'stroke-dashoffset 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          filter: `drop-shadow(0 0 8px ${color})`,
+        }}
+      />
+    </svg>
+  );
+}
+
+/* ─── Sparkline ─── */
+function Sparkline({ data = [40,55,35,60,48,72,65,80,70,90,85,95], width = 180, height = 36, color = T.cyan }) {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const points = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 4) - 2;
+    return `${x},${y}`;
+  }).join(' ');
+  const areaPoints = `0,${height} ${points} ${width},${height}`;
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      <defs>
+        <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.25"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polygon points={areaPoints} fill="url(#sparkGrad)"/>
+      <polyline
+        points={points}
+        fill="none" stroke={color} strokeWidth="1.5"
+        strokeLinecap="round" strokeLinejoin="round"
+        style={{ filter: `drop-shadow(0 0 4px ${color})` }}
+      />
+    </svg>
+  );
+}
+
+/* ─── Entrance animation wrapper ─── */
+function AnimIn({ children, delay = 0, style = {} }) {
+  return (
+    <div className="anim-in" style={{ animationDelay: `${delay}ms`, ...style }}>
+      {children}
+    </div>
+  );
+}
+
+/* ─── Bottom Navigation (fixed at frame level) ─── */
+function BottomNav({ activeTab, onTabChange }) {
+  const tabs = [
+    { id: 'home', icon: Icons.home, label: '首页' },
+    { id: 'card', icon: Icons.card, label: '卡片' },
+    { id: 'stats', icon: Icons.stats, label: '统计' },
+    { id: 'profile', icon: Icons.user, label: '我的' },
+  ];
+
+  return (
+    <div style={{
+      position: 'absolute',
+      bottom: 24, /* above home indicator */
+      left: 0, right: 0,
+      height: 72,
+      display: 'flex',
+      alignItems: 'flex-start',
+      justifyContent: 'space-around',
+      paddingTop: 8,
+      background: 'linear-gradient(to top, rgba(10,14,26,0.97) 50%, rgba(10,14,26,0.85) 80%, transparent 100%)',
+      zIndex: 5,
+      pointerEvents: 'auto',
+    }}>
+      {tabs.map(tab => {
+        const active = activeTab === tab.id;
+        return (
+          <div
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            className="tap"
+            style={{
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', gap: 3,
+              padding: '6px 16px',
+              borderRadius: 12,
+              background: active ? 'rgba(0,240,255,0.06)' : 'transparent',
+              transition: 'background 0.3s ease',
+            }}
+          >
+            <div style={{
+              color: active ? T.cyan : T.textMuted,
+              transition: 'color 0.25s ease, filter 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+              filter: active ? `drop-shadow(0 0 6px ${T.cyan})` : 'none',
+              transform: active ? 'scale(1.1)' : 'scale(1)',
+            }}>
+              {tab.icon}
+            </div>
+            <span style={{
+              fontSize: 10, fontWeight: active ? 600 : 400,
+              color: active ? T.cyan : T.textMuted,
+              transition: 'color 0.25s ease, font-weight 0.25s ease',
+            }}>
+              {tab.label}
+            </span>
+            <div style={{
+              width: active ? 4 : 0,
+              height: 4,
+              borderRadius: '50%',
+              background: T.cyan,
+              boxShadow: `0 0 8px ${T.cyan}`,
+              transition: 'width 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease',
+              opacity: active ? 1 : 0,
+            }} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── IOS Frame ─── */
+function IOSFrame({ children, footer }) {
+  const frameStyle = {
+    width: 393, height: 852, borderRadius: 50,
+    border: '4px solid #1a1a2e',
+    background: T.bg, overflow: 'hidden',
+    position: 'relative',
+    boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,240,255,0.05)',
+  };
+  const notchStyle = {
+    position: 'absolute', top: 0, left: '50%',
+    transform: 'translateX(-50%)', width: 126, height: 34,
+    background: '#000', borderRadius: '0 0 20px 20px', zIndex: 10,
+  };
+  const statusBarStyle = {
+    height: 54, display: 'flex', alignItems: 'flex-end',
+    justifyContent: 'space-between', padding: '0 32px 8px',
+    fontFamily: 'Space Grotesk, sans-serif', fontSize: 15,
+    fontWeight: 600, color: '#fff', position: 'relative', zIndex: 2,
+  };
+  const contentStyle = {
+    height: 'calc(100% - 54px)',
+    position: 'relative',
+  };
+  const homeStyle = {
+    position: 'absolute', bottom: 8, left: '50%',
+    transform: 'translateX(-50%)', width: 134, height: 5,
+    background: 'rgba(255,255,255,0.25)', borderRadius: 3, zIndex: 10,
+  };
+  const time = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+  return (
+    <div style={frameStyle} className="scanlines">
+      <div style={notchStyle} />
+      <div style={statusBarStyle}>
+        <span>{time}</span>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <span style={{ fontSize: 12, color: T.cyan }}>5G</span>
+          <span style={{ fontSize: 13 }}>87%</span>
+        </div>
+      </div>
+      <div style={contentStyle}>
+        <div className="scroll-area">
+          {children}
+        </div>
+        {footer}
+      </div>
+      <div style={homeStyle} />
+    </div>
+  );
+}
+
+/* ─── Shared Data ─── */
+const TRANSACTIONS = [
+  { name: '星巴克咖啡', time: '今天 14:30', amount: '-¥38.00', type: 'expense', icon: '☕', color: '#22d3ee' },
+  { name: '工资收入', time: '今天 09:00', amount: '+¥28,500.00', type: 'income', icon: '💼', color: '#34d399' },
+  { name: '淘宝购物', time: '昨天 20:15', amount: '-¥268.00', type: 'expense', icon: '🛒', color: '#f97316' },
+  { name: '滴滴出行', time: '昨天 18:40', amount: '-¥23.50', type: 'expense', icon: '🚗', color: '#8b5cf6' },
+  { name: '电费缴费', time: '04/17', amount: '-¥156.80', type: 'expense', icon: '⚡', color: '#00f0ff' },
+  { name: '理财收益', time: '04/16', amount: '+¥45.20', type: 'income', icon: '📈', color: '#34d399' },
+];
+
+/* ─── Section Title ─── */
+function SectionTitle({ title, right }) {
+  return (
+    <div style={{
+      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      marginBottom: 12, padding: '0 4px',
+    }}>
+      <span style={{ fontSize: 15, fontWeight: 600, color: T.text }}>{title}</span>
+      {right}
+    </div>
+  );
+}
+
+/* ─── Bar Chart Component ─── */
+function BarChart({ data, labels, color, height = 120 }) {
+  const max = Math.max(...data, 1);
+  const barW = 28;
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', height, padding: '0 4px' }}>
+      {data.map((v, i) => {
+        const h = Math.max((v / max) * (height - 24), 4);
+        return (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+            <div className="bar-anim" style={{
+              width: barW, height: h, borderRadius: 6,
+              background: `linear-gradient(to top, ${color}, ${T.purple})`,
+              boxShadow: `0 0 10px ${color}40`,
+              animationDelay: `${i * 80}ms`,
+            }} />
+            <span style={{ fontSize: 10, color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{labels[i]}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════
+   HOME TAB
+   ════════════════════════════════════════════ */
+function HomeTab({ balanceVisible, balanceHiding, toggleBalance }) {
+  const balance = '¥ 128,450.80';
+  const hidden = '¥ ••••••••';
+  const quickActions = [
+    { icon: Icons.send, label: '转账', color: T.cyan, bg: T.cyanDim },
+    { icon: Icons.pay, label: '付款', color: T.purple, bg: T.purpleDim },
+    { icon: Icons.scan, label: '扫一扫', color: T.green, bg: 'rgba(34,211,238,0.15)' },
+    { icon: Icons.topup, label: '充值', color: T.orange, bg: 'rgba(249,115,22,0.15)' },
+  ];
+  const spendingData = {
+    labels: ['餐饮', '交通', '购物', '娱乐'],
+    values: [35, 15, 30, 20],
+    colors: [T.cyan, T.purple, T.pink, T.green],
+  };
+
+  return (
+    <div className="page-enter" style={{ paddingBottom: 96 }}>
+      {/* Header */}
+      <AnimIn delay={0}>
+        <div style={{ padding: '16px 20px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontSize: 13, color: T.textDim, fontWeight: 400, marginBottom: 2 }}>Good evening</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: T.text, letterSpacing: '-0.02em' }}>张明远</div>
+          </div>
+          <div className="tap" style={{
+            width: 40, height: 40, borderRadius: 12,
+            background: T.surface, border: `1px solid ${T.border}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: T.textDim, position: 'relative',
+          }}>
+            {Icons.bell}
+            <div style={{
+              position: 'absolute', top: 8, right: 8,
+              width: 7, height: 7, borderRadius: '50%',
+              background: T.red, border: '2px solid ' + T.bg,
+            }} className="notif-dot" />
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Balance Card */}
+      <AnimIn delay={80}>
+        <div style={{
+          margin: '8px 16px 20px', padding: '24px 20px 20px', borderRadius: 20,
+          background: 'linear-gradient(135deg, rgba(0,240,255,0.08) 0%, rgba(139,92,246,0.08) 50%, rgba(0,240,255,0.04) 100%)',
+          border: `1px solid ${T.borderBright}`,
+          position: 'relative', overflow: 'hidden',
+        }} className="glow-cyan card-glow tap">
+          <div style={{
+            position: 'absolute', top: 0, right: 0, width: '60%', height: '100%', opacity: 0.3,
+            background: 'linear-gradient(90deg, transparent 49.5%, rgba(0,240,255,0.06) 49.5%, rgba(0,240,255,0.06) 50.5%, transparent 50.5%), linear-gradient(0deg, transparent 49.5%, rgba(0,240,255,0.06) 49.5%, rgba(0,240,255,0.06) 50.5%, transparent 50.5%)',
+            backgroundSize: '30px 30px',
+          }} />
+          <div style={{ position: 'absolute', top: 12, right: 12 }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: T.cyan, animation: 'shimmer 2s ease-in-out infinite', boxShadow: `0 0 10px ${T.cyan}` }} />
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12, fontSize: 12, color: T.textDim, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              {Icons.shield}<span>总资产</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span className={`balance-text ${balanceHiding ? 'hiding' : ''}`} style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 32, fontWeight: 600, color: T.text, letterSpacing: '-0.02em',
+                ...(balanceVisible ? { textShadow: '0 0 30px rgba(0,240,255,0.2)' } : {}),
+              }}>
+                {balanceVisible ? balance : hidden}
+              </span>
+              <div onClick={toggleBalance} className="tap" style={{ color: T.textDim, padding: 4, borderRadius: 8 }}>
+                {balanceVisible ? Icons.eye : Icons.eyeOff}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
+              <Sparkline width={180} height={36} />
+              <div style={{ fontSize: 11, color: T.greenBright, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>+12.5%</div>
+            </div>
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Quick Actions */}
+      <AnimIn delay={160}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, padding: '0 16px', marginBottom: 20 }}>
+          {quickActions.map((a, i) => (
+            <div key={i} className="tap" style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+              padding: '16px 8px', borderRadius: 16,
+              background: T.bgCard, border: `1px solid ${T.border}`,
+              transition: 'border-color 0.2s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = `${a.color}30`; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; }}
+            >
+              <div className="action-icon" style={{
+                width: 44, height: 44, borderRadius: 14, background: a.bg,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: a.color, boxShadow: `0 0 15px ${a.bg}`,
+              }}>
+                {a.icon}
+              </div>
+              <span style={{ fontSize: 12, color: T.textDim, fontWeight: 500 }}>{a.label}</span>
+            </div>
+          ))}
+        </div>
+      </AnimIn>
+
+      {/* Spending Overview */}
+      <AnimIn delay={240}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="本月消费" right={<span style={{ fontSize: 12, color: T.textDim, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>¥6,832.50</span>} />
+          <div style={{ padding: '20px', borderRadius: 16, background: T.bgCard, border: `1px solid ${T.border}` }} className="card-glow">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <DataRing size={90} strokeWidth={5} value={0.68} color={T.cyan} />
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 600, color: T.text }}>68%</span>
+                </div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {spendingData.labels.map((label, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: 2, background: spendingData.colors[i], boxShadow: `0 0 6px ${spendingData.colors[i]}` }} />
+                    <span style={{ fontSize: 12, color: T.textDim, flex: 1 }}>{label}</span>
+                    <span style={{ fontSize: 12, color: T.textDim, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace" }}>{spendingData.values[i]}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Recent Transactions */}
+      <AnimIn delay={320}>
+        <div style={{ padding: '0 16px 0' }}>
+          <SectionTitle title="最近交易" right={
+            <div className="tap" style={{ fontSize: 12, color: T.cyan, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 8 }}>
+              全部记录 {Icons.chevronRight}
+            </div>
+          } />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {TRANSACTIONS.map((tx, i) => (
+              <div key={i} className="tx-row tap" style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 12,
+                background: i === 0 ? T.bgCard : 'transparent',
+                border: i === 0 ? `1px solid ${T.border}` : '1px solid transparent',
+              }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: `${tx.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0, border: `1px solid ${tx.color}20` }}>{tx.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: T.text, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.name}</div>
+                  <div style={{ fontSize: 11, color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{tx.time}</div>
+                </div>
+                <span style={{ fontSize: 14, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace", color: tx.type === 'income' ? T.greenBright : T.text, flexShrink: 0 }}>{tx.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════
+   CARD TAB
+   ════════════════════════════════════════════ */
+function CardTab() {
+  const [activeCard, setActiveCard] = useState(0);
+  const cards = [
+    { name: 'NEXUS', number: '6228 •••• •••• 7890', holder: 'ZHANG MINGYUAN', exp: '12/28', type: 'VISA', color1: '#0f1729', color2: '#1a1040', accent: T.purple, balance: '¥ 86,320.50', limit: '¥ 100,000' },
+    { name: 'NEXUS', number: '6217 •••• •••• 3456', holder: 'ZHANG MINGYUAN', exp: '06/27', type: 'MC', color1: '#0d1f3c', color2: '#0f2920', accent: T.cyan, balance: '¥ 42,130.30', limit: '¥ 50,000' },
+  ];
+  const cardActions = [
+    { icon: '🔒', label: '冻结', desc: '临时冻结卡片' },
+    { icon: '⚙️', label: '设置', desc: '交易限额管理' },
+    { icon: '📋', label: '账单', desc: '查看月度账单' },
+    { icon: '🔐', label: '密码', desc: '修改交易密码' },
+  ];
+
+  return (
+    <div className="page-enter" style={{ paddingBottom: 96 }}>
+      {/* Header */}
+      <AnimIn delay={0}>
+        <div style={{ padding: '16px 20px 16px' }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: T.text }}>我的卡片</div>
+          <div style={{ fontSize: 13, color: T.textDim, marginTop: 4 }}>管理你的银行卡</div>
+        </div>
+      </AnimIn>
+
+      {/* Card Carousel */}
+      <AnimIn delay={80}>
+        <div className="card-carousel" style={{ marginBottom: 24 }}>
+          {cards.map((c, ci) => (
+            <div key={ci} onClick={() => setActiveCard(ci)} className="tap" style={{
+              width: 320, padding: '24px 20px 20px', borderRadius: 16,
+              background: `linear-gradient(135deg, ${c.color1} 0%, ${c.color2} 50%, ${c.color1} 100%)`,
+              border: `1px solid ${activeCard === ci ? c.accent + '40' : 'rgba(255,255,255,0.05)'}`,
+              position: 'relative', overflow: 'hidden',
+              transition: 'border-color 0.3s ease, box-shadow 0.3s ease',
+              boxShadow: activeCard === ci ? `0 0 20px ${c.accent}20` : 'none',
+            }}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle, ${c.accent}18 0%, transparent 70%)` }} />
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: T.text, letterSpacing: '0.05em' }}>{c.name}</span>
+                  <div style={{ color: c.accent, opacity: 0.7 }}>{Icons.contactless}</div>
+                </div>
+                <div style={{ marginBottom: 16 }}>{Icons.chip}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 16, color: T.textDim, letterSpacing: '0.1em', marginBottom: 12 }}>{c.number}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <div>
+                    <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 2, textTransform: 'uppercase' }}>持卡人</div>
+                    <div style={{ fontSize: 11, color: T.textDim, fontWeight: 500 }}>{c.holder}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 2, textTransform: 'uppercase' }}>有效期</div>
+                    <div style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono', monospace" }}>{c.exp}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: c.accent }}>{Icons.wifi}<span>{c.type}</span></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </AnimIn>
+
+      {/* Card Stats */}
+      <AnimIn delay={160}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 16px', marginBottom: 20 }}>
+          <div style={{ padding: 16, borderRadius: 14, background: T.bgCard, border: `1px solid ${T.border}` }}>
+            <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 6 }}>已用额度</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: T.text }}>{cards[activeCard].balance}</div>
+            <div style={{ marginTop: 8, height: 4, borderRadius: 2, background: T.surface }}>
+              <div className="progress-anim" style={{ height: '100%', borderRadius: 2, background: `linear-gradient(90deg, ${cards[activeCard].accent}, ${T.purple})`, width: '86%', boxShadow: `0 0 8px ${cards[activeCard].accent}40` }} />
+            </div>
+          </div>
+          <div style={{ padding: 16, borderRadius: 14, background: T.bgCard, border: `1px solid ${T.border}` }}>
+            <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 6 }}>总额度</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 20, fontWeight: 600, color: T.text }}>{cards[activeCard].limit}</div>
+            <div style={{ fontSize: 11, color: T.greenBright, fontWeight: 500, fontFamily: "'JetBrains Mono', monospace", marginTop: 10 }}>
+              剩余 14%
+            </div>
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Card Actions */}
+      <AnimIn delay={240}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="卡片管理" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {cardActions.map((a, i) => (
+              <div key={i} className="tap" style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                padding: '14px 6px', borderRadius: 14,
+                background: T.bgCard, border: `1px solid ${T.border}`,
+                transition: 'border-color 0.2s ease',
+              }}>
+                <span style={{ fontSize: 22 }}>{a.icon}</span>
+                <span style={{ fontSize: 11, color: T.textDim, fontWeight: 500, textAlign: 'center' }}>{a.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Card Transactions */}
+      <AnimIn delay={320}>
+        <div style={{ padding: '0 16px' }}>
+          <SectionTitle title="卡片交易" right={
+            <div className="tap" style={{ fontSize: 12, color: T.cyan, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 8 }}>
+              全部 {Icons.chevronRight}
+            </div>
+          } />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {TRANSACTIONS.slice(0, 4).map((tx, i) => (
+              <div key={i} className="tx-row tap" style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12,
+                background: 'transparent', border: '1px solid transparent',
+              }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: `${tx.color}10`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, border: `1px solid ${tx.color}20` }}>{tx.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: T.text, marginBottom: 1 }}>{tx.name}</div>
+                  <div style={{ fontSize: 10, color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>{tx.time}</div>
+                </div>
+                <span style={{ fontSize: 13, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace", color: tx.type === 'income' ? T.greenBright : T.text, flexShrink: 0 }}>{tx.amount}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════
+   STATS TAB
+   ════════════════════════════════════════════ */
+function StatsTab() {
+  const [period, setPeriod] = useState('month');
+  const periods = [
+    { id: 'week', label: '周' },
+    { id: 'month', label: '月' },
+    { id: 'year', label: '年' },
+  ];
+  const weeklyData = [320, 580, 440, 690, 510, 820, 780];
+  const weekLabels = ['一', '二', '三', '四', '五', '六', '日'];
+  const categories = [
+    { name: '餐饮', amount: '¥2,390', pct: 35, color: T.cyan },
+    { name: '购物', amount: '¥2,049', pct: 30, color: T.pink },
+    { name: '娱乐', amount: '¥1,366', pct: 20, color: T.green },
+    { name: '交通', amount: '¥1,027', pct: 15, color: T.purple },
+  ];
+  const incomeExpense = [
+    { label: '收入', amount: '¥28,545', color: T.greenBright },
+    { label: '支出', amount: '¥6,832', color: T.red },
+  ];
+
+  return (
+    <div className="page-enter" style={{ paddingBottom: 96 }}>
+      {/* Header */}
+      <AnimIn delay={0}>
+        <div style={{ padding: '16px 20px 12px' }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: T.text }}>统计分析</div>
+          <div style={{ fontSize: 13, color: T.textDim, marginTop: 4 }}>了解你的消费习惯</div>
+        </div>
+      </AnimIn>
+
+      {/* Period Selector */}
+      <AnimIn delay={60}>
+        <div style={{ display: 'flex', gap: 4, padding: '0 16px', marginBottom: 20, background: T.bgCard, margin: '0 16px 20px', borderRadius: 10, border: `1px solid ${T.border}`, padding: 4 }}>
+          {periods.map(p => (
+            <div key={p.id} onClick={() => setPeriod(p.id)} className="tap" style={{
+              flex: 1, textAlign: 'center', padding: '8px 0', borderRadius: 8,
+              background: period === p.id ? `${T.cyan}15` : 'transparent',
+              border: period === p.id ? `1px solid ${T.cyan}30` : '1px solid transparent',
+              color: period === p.id ? T.cyan : T.textMuted,
+              fontSize: 13, fontWeight: period === p.id ? 600 : 400,
+              transition: 'all 0.2s ease',
+            }}>
+              {p.label}
+            </div>
+          ))}
+        </div>
+      </AnimIn>
+
+      {/* Total Spending */}
+      <AnimIn delay={120}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <div style={{
+            padding: '20px', borderRadius: 16,
+            background: 'linear-gradient(135deg, rgba(0,240,255,0.06) 0%, rgba(139,92,246,0.06) 100%)',
+            border: `1px solid ${T.borderBright}`,
+          }}>
+            <div style={{ fontSize: 12, color: T.textDim, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>本月总支出</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 34, fontWeight: 700, color: T.text, letterSpacing: '-0.02em', textShadow: '0 0 30px rgba(0,240,255,0.15)', marginBottom: 4 }}>
+              ¥6,832.50
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontSize: 12, color: T.red, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>+18.2%</span>
+              <span style={{ fontSize: 11, color: T.textMuted }}>较上月</span>
+            </div>
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Weekly Bar Chart */}
+      <AnimIn delay={200}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="每日消费" />
+          <div style={{ padding: '16px', borderRadius: 16, background: T.bgCard, border: `1px solid ${T.border}` }}>
+            <BarChart data={weeklyData} labels={weekLabels} color={T.cyan} height={110} />
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Category Breakdown */}
+      <AnimIn delay={280}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="消费分类" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {categories.map((c, i) => (
+              <div key={i} className="tap" style={{
+                padding: '12px 14px', borderRadius: 12,
+                background: T.bgCard, border: `1px solid ${T.border}`,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 10, height: 10, borderRadius: 3, background: c.color, boxShadow: `0 0 6px ${c.color}` }} />
+                    <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{c.name}</span>
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'JetBrains Mono', monospace" }}>{c.amount}</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 2, background: T.surface }}>
+                  <div className="progress-anim" style={{
+                    height: '100%', borderRadius: 2,
+                    background: c.color,
+                    width: `${c.pct}%`,
+                    boxShadow: `0 0 8px ${c.color}40`,
+                    animationDelay: `${i * 100 + 200}ms`,
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Income vs Expense */}
+      <AnimIn delay={360}>
+        <div style={{ padding: '0 16px' }}>
+          <SectionTitle title="收支对比" />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {incomeExpense.map((ie, i) => (
+              <div key={i} style={{
+                padding: 16, borderRadius: 14, background: T.bgCard,
+                border: `1px solid ${ie.color}15`,
+              }}>
+                <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 6 }}>{ie.label}</div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 18, fontWeight: 600, color: ie.color }}>{ie.amount}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════
+   PROFILE TAB
+   ════════════════════════════════════════════ */
+function ProfileTab() {
+  const settingsItems = [
+    { icon: '🔐', label: '安全中心', desc: '密码、指纹、Face ID' },
+    { icon: '🔔', label: '消息通知', desc: '交易提醒、营销推送' },
+    { icon: '💳', label: '绑定账户', desc: '管理关联银行卡' },
+    { icon: '📊', label: '数据导出', desc: '导出交易记录' },
+    { icon: '🌐', label: '语言设置', desc: '简体中文' },
+    { icon: '❓', label: '帮助中心', desc: '常见问题解答' },
+  ];
+
+  return (
+    <div className="page-enter" style={{ paddingBottom: 96 }}>
+      {/* Header */}
+      <AnimIn delay={0}>
+        <div style={{ padding: '16px 20px 0' }}>
+          <div style={{ fontSize: 22, fontWeight: 700, color: T.text }}>我的</div>
+        </div>
+      </AnimIn>
+
+      {/* Profile Card */}
+      <AnimIn delay={80}>
+        <div style={{
+          margin: '16px 16px 20px', padding: '20px',
+          borderRadius: 16,
+          background: 'linear-gradient(135deg, rgba(0,240,255,0.06) 0%, rgba(139,92,246,0.06) 100%)',
+          border: `1px solid ${T.borderBright}`,
+          display: 'flex', alignItems: 'center', gap: 16,
+        }}>
+          {/* Avatar */}
+          <div style={{
+            width: 56, height: 56, borderRadius: 18,
+            background: 'linear-gradient(135deg, ' + T.cyan + '20, ' + T.purple + '20)',
+            border: `2px solid ${T.cyan}30`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 26, flexShrink: 0,
+          }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={T.cyan} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, color: T.text, marginBottom: 4 }}>张明远</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{
+                padding: '2px 8px', borderRadius: 6,
+                background: `${T.purple}20`, border: `1px solid ${T.purple}30`,
+                fontSize: 10, fontWeight: 600, color: T.purple,
+                letterSpacing: '0.04em',
+              }}>
+                PLATINUM
+              </div>
+              <span style={{ fontSize: 11, color: T.textMuted }}>会员等级</span>
+            </div>
+          </div>
+          <div style={{ color: T.textMuted }}>
+            {Icons.chevronRight}
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Account Summary */}
+      <AnimIn delay={140}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, padding: '0 16px', marginBottom: 20 }}>
+          {[
+            { label: '总资产', value: '¥128,450', color: T.cyan },
+            { label: '本月收入', value: '¥28,545', color: T.greenBright },
+            { label: '本月支出', value: '¥6,832', color: T.red },
+          ].map((s, i) => (
+            <div key={i} style={{
+              padding: '14px 12px', borderRadius: 14,
+              background: T.bgCard, border: `1px solid ${T.border}`,
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 10, color: T.textMuted, marginBottom: 6 }}>{s.label}</div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 600, color: s.color }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+      </AnimIn>
+
+      {/* Quick Tools */}
+      <AnimIn delay={200}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="常用工具" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {[
+              { icon: '🏧', label: 'ATM' },
+              { icon: '💱', label: '汇率' },
+              { icon: '📊', label: '理财' },
+              { icon: '🏦', label: '网点' },
+            ].map((t, i) => (
+              <div key={i} className="tap" style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
+                padding: '14px 6px', borderRadius: 14,
+                background: T.bgCard, border: `1px solid ${T.border}`,
+              }}>
+                <span style={{ fontSize: 22 }}>{t.icon}</span>
+                <span style={{ fontSize: 11, color: T.textDim, fontWeight: 500 }}>{t.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Settings List */}
+      <AnimIn delay={280}>
+        <div style={{ padding: '0 16px', marginBottom: 20 }}>
+          <SectionTitle title="设置" />
+          <div style={{ borderRadius: 16, background: T.bgCard, border: `1px solid ${T.border}`, overflow: 'hidden' }}>
+            {settingsItems.map((item, i) => (
+              <div key={i} className="settings-row" style={{
+                display: 'flex', alignItems: 'center', gap: 12,
+                padding: '14px 16px',
+                borderBottom: i < settingsItems.length - 1 ? `1px solid ${T.border}` : 'none',
+              }}>
+                <span style={{ fontSize: 20, width: 28, textAlign: 'center' }}>{item.icon}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 500, color: T.text }}>{item.label}</div>
+                  <div style={{ fontSize: 11, color: T.textMuted, marginTop: 1 }}>{item.desc}</div>
+                </div>
+                <div style={{ color: T.textMuted }}>{Icons.chevronRight}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </AnimIn>
+
+      {/* Version */}
+      <AnimIn delay={360}>
+        <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
+          <div style={{ fontSize: 11, color: T.textMuted, fontFamily: "'JetBrains Mono', monospace" }}>NEXUS Bank v2.4.1</div>
+          <div style={{ fontSize: 10, color: T.textMuted, marginTop: 2, opacity: 0.5 }}>Secured by quantum encryption</div>
+        </div>
+      </AnimIn>
+    </div>
+  );
+}
+
+/* ─── Main App ─── */
+function BankingApp() {
+  const [balanceVisible, setBalanceVisible] = useState(true);
+  const [balanceHiding, setBalanceHiding] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
+  const scrollRef = useRef(null);
+
+  const toggleBalance = useCallback(() => {
+    setBalanceHiding(true);
+    setTimeout(() => {
+      setBalanceVisible(v => !v);
+      setBalanceHiding(false);
+    }, 200);
+  }, []);
+
+  // Scroll to top on tab change
+  const handleTabChange = useCallback((tab) => {
+    setActiveTab(tab);
+    const sa = document.querySelector('.scroll-area');
+    if (sa) sa.scrollTop = 0;
+  }, []);
+
+  const tabContent = activeTab === 'home' ? (
+    <HomeTab balanceVisible={balanceVisible} balanceHiding={balanceHiding} toggleBalance={toggleBalance} />
+  ) : activeTab === 'card' ? (
+    <CardTab />
+  ) : activeTab === 'stats' ? (
+    <StatsTab />
+  ) : (
+    <ProfileTab />
+  );
+
+  return (
+    <IOSFrame footer={<BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}>
+      {tabContent}
+    </IOSFrame>
+  );
+}
+
+/* ─── Render ─── */
+ReactDOM.createRoot(document.getElementById('root')).render(<BankingApp />);
+</script>
+</body>
+</html>

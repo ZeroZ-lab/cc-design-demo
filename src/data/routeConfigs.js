@@ -10,6 +10,7 @@ const MarsLandingPage = lazy(() => import('../pages/MarsLandingPage'));
 const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
 const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
+const BankingAppPage = lazy(() => import('../pages/BankingAppPage'));
 
 export const routeConfigs = [
   {
@@ -121,6 +122,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #4fc3f7, #b388ff)',
     tags: ['Glassmorphism', '3D tilt', 'Parallax', 'Data viz'],
     component: GlassmorphismDashboardPage
+  },
+  {
+    path: '/banking-app',
+    title: 'NEXUS Bank — Cyberpunk Banking App',
+    label: 'Banking App',
+    name: 'NEXUS Bank',
+    summary: '赛博朋克风格手机银行 App，暗色主题搭配霓虹青紫色调，包含账户总览、卡片管理、消费统计和个人中心。',
+    accent: 'linear-gradient(135deg, #00f0ff, #8b5cf6)',
+    tags: ['Mobile App', 'Cyberpunk', 'Dark theme', 'Glassmorphism'],
+    component: BankingAppPage
   }
 ];
 

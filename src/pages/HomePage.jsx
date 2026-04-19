@@ -23,6 +23,9 @@ export default function HomePage() {
             适合直接发 Vercel Preview 链接给别人查看。
           </p>
           <div className="hero-actions">
+            <a className="primary" href="/spacex-official">
+              Open SpaceX Concept
+            </a>
             <a className="primary" href="/llm-sketch-ppt">
               Open LLM Sketch PPT
             </a>
@@ -34,7 +37,7 @@ export default function HomePage() {
         <aside className="hero-meta">
           <div className="meta-card">
             <span className="meta-label">Collection</span>
-            <span className="meta-value">8 static design demos</span>
+            <span className="meta-value">9 static design demos</span>
             <div className="meta-note">保持原始 HTML 页面不变，通过静态路由暴露稳定访问路径。</div>
           </div>
           <div className="meta-card">
@@ -45,14 +48,28 @@ export default function HomePage() {
           <div className="meta-card">
             <span className="meta-label">Routes</span>
             <span className="meta-value">
-              /, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website, /tesla-3d-website, /aether,
-              /mech-ops, /retro-pixel, /glassmorphism-dashboard
+              /, /spacex-official, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website,
+              /tesla-3d-website, /aether, /mech-ops, /retro-pixel, /glassmorphism-dashboard
             </span>
           </div>
         </aside>
       </section>
 
       <main className="grid" id="projects">
+        <a className="card enterprise" href="/spacex-official">
+          <span className="card-tag">Aerospace</span>
+          <h2>
+            SpaceX
+            <br />
+            Official Concept
+          </h2>
+          <p>参考官方视觉气质的黑白极简航天落地页，强调任务舞台、参数叙事和重型发射系统氛围。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/spacex-official</strong>
+          </div>
+        </a>
+
         <a className="card enterprise" href="/llm-sketch-ppt">
           <span className="card-tag">Presentation</span>
           <h2>

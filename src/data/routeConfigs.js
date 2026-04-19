@@ -5,6 +5,7 @@ const AetherPage = lazy(() => import('../pages/AetherPage'));
 const EnterpriseHeroPage = lazy(() => import('../pages/EnterpriseHeroPage'));
 const SciFiWebsitePage = lazy(() => import('../pages/SciFiWebsitePage'));
 const Tesla3dPage = lazy(() => import('../pages/Tesla3dPage'));
+const SpaceXOfficialPage = lazy(() => import('../pages/SpaceXOfficialPage'));
 const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
 const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
@@ -69,6 +70,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #ffffff, #e82127)',
     tags: ['Three.js', 'Product launch', 'Automotive'],
     component: Tesla3dPage
+  },
+  {
+    path: '/spacex-official',
+    title: 'SpaceX — Making Life Multiplanetary',
+    label: 'SpaceX',
+    name: 'SpaceX Official',
+    summary: '参考 SpaceX 官网气质的黑白极简航天品牌页，强调任务叙事、参数感与发射舞台。',
+    accent: 'linear-gradient(135deg, #ffffff, #6b87b8)',
+    tags: ['Aerospace', 'Editorial', 'Minimal'],
+    component: SpaceXOfficialPage
   },
   {
     path: '/mech-ops',

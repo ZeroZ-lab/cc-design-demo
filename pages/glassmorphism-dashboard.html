@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WORLD POPULATION — Glassmorphism Data Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -30,46 +31,19 @@
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
       min-height: 100vh;
-      perspective: 1200px;
     }
 
-    /* ========== Floating Orbs ========== */
-    .orb-container {
+    /* ========== Three.js Canvas ========== */
+    #three-canvas {
       position: fixed;
       inset: 0;
       z-index: 0;
-      overflow: hidden;
-      pointer-events: none;
     }
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.35;
-      animation: float-orb 20s ease-in-out infinite;
-    }
-    .orb-1 {
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, var(--accent-blue), transparent 70%);
-      top: -10%; left: -10%;
-      animation-delay: 0s;
-    }
-    .orb-2 {
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, var(--accent-purple), transparent 70%);
-      top: 40%; right: -15%;
-      animation-delay: -7s;
-    }
-    .orb-3 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, var(--accent-coral), transparent 70%);
-      bottom: -5%; left: 30%;
-      animation-delay: -14s;
-    }
-    @keyframes float-orb {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(60px, -80px) scale(1.1); }
-      66% { transform: translate(-40px, 60px) scale(0.9); }
+
+    /* ========== Overlay Content ========== */
+    .overlay-wrap {
+      position: relative;
+      z-index: 1;
     }
 
     /* ========== Glass Card ========== */
@@ -81,20 +55,6 @@
       -webkit-backdrop-filter: blur(var(--glass-blur));
       box-shadow: var(--glass-shadow);
     }
-
-    /* ========== Parallax Scrolling ========== */
-    .parallax-wrap {
-      position: relative;
-      z-index: 1;
-    }
-    .parallax-layer {
-      will-change: transform;
-      transition: transform 0.1s ease-out;
-    }
-    .parallax-depth-1 { transform: translateZ(0px); }
-    .parallax-depth-2 { transform: translateZ(40px); }
-    .parallax-depth-3 { transform: translateZ(80px); }
-    .parallax-depth-4 { transform: translateZ(120px); }
 
     /* ========== 3D Tilt on Cards ========== */
     .card-3d {
@@ -165,6 +125,11 @@
       padding: 80px 30px 60px;
       text-align: center;
       position: relative;
+      min-height: 50vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
     .hero-badge {
       display: inline-block;
@@ -194,6 +159,85 @@
       max-width: 600px;
       margin: 0 auto;
       line-height: 1.8;
+    }
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .hero-btn {
+      padding: 12px 28px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .hero-btn.primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 20px rgba(79, 195, 247, 0.3);
+    }
+    .hero-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(79, 195, 247, 0.5);
+    }
+    .hero-btn.secondary {
+      background: var(--glass-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(10px);
+    }
+    .hero-btn.secondary:hover {
+      background: rgba(255,255,255,0.1);
+      transform: translateY(-2px);
+    }
+
+    /* ========== Globe Hero Visual ========== */
+    .globe-hero {
+      position: relative;
+      margin: 40px auto;
+      width: 320px;
+      height: 320px;
+    }
+    .globe-hero canvas {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ========== Data Flow Lines ========== */
+    .data-flow {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 60px;
+    }
+    .flow-line {
+      position: absolute;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent-blue), transparent);
+      animation: flow-down 2s linear infinite;
+    }
+    @keyframes flow-down {
+      0% { height: 0; opacity: 1; }
+      100% { height: 60px; opacity: 0; }
+    }
+
+    /* ========== Scroll Reveal ========== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* ========== Main Stats Row ========== */
@@ -272,6 +316,7 @@
       height: 240px;
       gap: 12px;
       padding-bottom: 40px;
+      padding-left: 55px;
       position: relative;
     }
     .bar-chart .y-axis {
@@ -458,6 +503,17 @@
       border-radius: 50%;
     }
 
+    /* ========== 3D Bar Chart Section ========== */
+    .3d-chart-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .3d-chart-container {
+      height: 350px;
+      border-radius: 20px;
+    }
+
     /* ========== Age Distribution ========== */
     .age-section {
       padding: 30px;
@@ -596,6 +652,7 @@
       .bar-chart { height: 180px; }
       .bar { width: 16px; }
       .bar::after { font-size: 8px; top: -18px; }
+      .globe-hero { width: 200px; height: 200px; }
     }
 
     /* ========== Animations ========== */
@@ -620,16 +677,12 @@
 </head>
 <body>
 
-<div class="orb-container">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-</div>
+<canvas id="three-canvas"></canvas>
 
-<div class="parallax-wrap" id="parallax-wrap">
+<div class="overlay-wrap" id="overlay-wrap">
 
   <!-- Nav -->
-  <nav class="nav-bar glass parallax-layer parallax-depth-4">
+  <nav class="nav-bar glass">
     <div class="brand">
       <div class="brand-icon">🌍</div>
       POPULATION.IO
@@ -642,8 +695,8 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="hero-section parallax-layer parallax-depth-1">
+  <!-- Hero with 3D Globe -->
+  <section class="hero-section" id="overview">
     <div class="hero-badge fade-up">GLOBAL DATA 2025</div>
     <h1 class="hero-title fade-up fade-up-d1">
       World <span class="highlight">Population</span> Dashboard
@@ -651,10 +704,14 @@
     <p class="hero-desc fade-up fade-up-d2">
       Real-time glassmorphism visualization of global demographic data — population growth, regional distribution, age structure, and milestone projections through 3D depth and parallax layers.
     </p>
+    <div class="hero-cta fade-up fade-up-d3">
+      <a class="hero-btn primary" href="#3d-chart">Explore 3D Chart</a>
+      <a class="hero-btn secondary" href="#regions">View Regions</a>
+    </div>
   </section>
 
   <!-- Main Stats -->
-  <section class="stats-row parallax-layer parallax-depth-2" id="overview">
+  <section class="stats-row reveal" id="overview">
     <div class="stat-card glass card-3d fade-up fade-up-d1">
       <div class="stat-glow" style="background:var(--accent-blue)"></div>
       <div class="card-shadow"></div>
@@ -698,7 +755,7 @@
   </section>
 
   <!-- Population Bar Chart -->
-  <section class="chart-section parallax-layer parallax-depth-1">
+  <section class="chart-section reveal">
     <div class="chart-container glass">
       <div class="chart-title">Population by Decade <span>(1950 – 2025, in billions)</span></div>
       <div class="bar-chart" id="bar-chart">
@@ -710,7 +767,7 @@
   </section>
 
   <!-- Region Cards -->
-  <section class="region-section parallax-layer parallax-depth-2" id="regions">
+  <section class="region-section reveal" id="regions">
     <div class="section-title">Regional Distribution</div>
     <div class="region-grid">
       <div class="region-card glass card-3d fade-up">
@@ -825,8 +882,14 @@
     </div>
   </section>
 
+  <!-- 3D Bar Chart -->
+  <section class="chart-section reveal" id="3d-chart">
+    <div class="chart-title">Population Growth — 3D Visualization <span>(Interactive Three.js bars)</span></div>
+    <div id="3d-bar-mount" style="height:350px;border-radius:20px;overflow:hidden;"></div>
+  </section>
+
   <!-- Growth Projection -->
-  <section class="projection-section parallax-layer parallax-depth-3" id="growth">
+  <section class="projection-section reveal" id="growth">
     <div class="projection-container glass">
       <div class="projection-title">Population Growth Projection <span>(2025 – 2100)</span></div>
       <div class="projection-canvas-wrap">
@@ -841,7 +904,7 @@
   </section>
 
   <!-- Age Distribution -->
-  <section class="age-section parallax-layer parallax-depth-2" id="age">
+  <section class="age-section reveal" id="age">
     <div class="age-container glass">
       <div class="age-title">Global Age Distribution <span>(2025)</span></div>
       <div class="age-bars" id="age-bars"></div>
@@ -849,7 +912,7 @@
   </section>
 
   <!-- Milestone Timeline -->
-  <section class="timeline-section parallax-layer parallax-depth-1">
+  <section class="timeline-section reveal">
     <div class="timeline-container glass">
       <div class="timeline-title">Population Milestones</div>
       <div class="timeline">
@@ -893,7 +956,7 @@
   </section>
 
   <!-- Footer -->
-  <div class="footer parallax-layer parallax-depth-1">
+  <div class="footer reveal">
     <p>POPULATION.IO — Glassmorphism Dashboard Concept</p>
     <p style="margin-top:8px;"><a href="/">BACK TO INDEX</a></p>
   </div>
@@ -901,21 +964,333 @@
 </div>
 
 <script>
-// ========== Parallax Scrolling ==========
+// ========== Three.js Background: Globe + Particles ==========
 (function() {
-  var wrap = document.getElementById('parallax-wrap');
-  var layers = document.querySelectorAll('.parallax-layer');
+  var canvas = document.getElementById('three-canvas');
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 0, 30);
 
-  function updateParallax() {
-    var scrollY = window.scrollY;
-    layers.forEach(function(layer) {
-      var depth = parseFloat(layer.className.match(/parallax-depth-(\d+)/)?.[1] || 0);
-      var move = scrollY * (depth / 120) * -0.5;
-      layer.style.transform = 'translateY(' + move + 'px) translateZ(' + depth + 'px)';
-    });
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // --- Wireframe Globe ---
+  var globeGeo = new THREE.SphereGeometry(4, 40, 40);
+  var globeMat = new THREE.MeshBasicMaterial({
+    color: 0x4fc3f7,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.15
+  });
+  var globe = new THREE.Mesh(globeGeo, globeMat);
+  globe.position.set(12, -3, -10);
+  scene.add(globe);
+
+  // --- Globe inner glow ---
+  var innerGeo = new THREE.SphereGeometry(3.8, 32, 32);
+  var innerMat = new THREE.MeshBasicMaterial({
+    color: 0xb388ff,
+    transparent: true,
+    opacity: 0.06
+  });
+  var innerGlobe = new THREE.Mesh(innerGeo, innerMat);
+  innerGlobe.position.copy(globe.position);
+  scene.add(innerGlobe);
+
+  // --- Data point dots on globe surface ---
+  var regionCoords = [
+    { lat: 35, lon: 105, color: 0xff8a80, size: 0.12 },  // Asia
+    { lat: 1, lon: 25, color: 0xffd54f, size: 0.08 },     // Africa
+    { lat: 50, lon: 10, color: 0x4fc3f7, size: 0.06 },    // Europe
+    { lat: 40, lon: -100, color: 0x69f0ae, size: 0.07 },  // Americas
+    { lat: -25, lon: 135, color: 0xb388ff, size: 0.04 }   // Oceania
+  ];
+  regionCoords.forEach(function(rc) {
+    var phi = (90 - rc.lat) * Math.PI / 180;
+    var theta = (rc.lon + 180) * Math.PI / 180;
+    var x = -(4.2) * Math.sin(phi) * Math.cos(theta);
+    var y = (4.2) * Math.cos(phi);
+    var z = (4.2) * Math.sin(phi) * Math.sin(theta);
+
+    var dotGeo = new THREE.SphereGeometry(rc.size, 12, 12);
+    var dotMat = new THREE.MeshBasicMaterial({ color: rc.color, transparent: true, opacity: 0.9 });
+    var dot = new THREE.Mesh(dotGeo, dotMat);
+    dot.position.set(x + globe.position.x, y + globe.position.y, z + globe.position.z);
+    scene.add(dot);
+
+    // Pulse ring around each data point
+    var ringGeo = new THREE.RingGeometry(rc.size * 1.5, rc.size * 2.5, 24);
+    var ringMat = new THREE.MeshBasicMaterial({ color: rc.color, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+    var ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.copy(dot.position);
+    ring.lookAt(globe.position);
+    ring.userData = { baseScale: 1, pulsePhase: Math.random() * Math.PI * 2 };
+    scene.add(ring);
+  });
+
+  // --- Particle network ---
+  var particleCount = 300;
+  var positions = new Float32Array(particleCount * 3);
+  var colors = new Float32Array(particleCount * 3);
+  var particleColors = [
+    new THREE.Color(0x4fc3f7),
+    new THREE.Color(0xb388ff),
+    new THREE.Color(0xff8a80),
+    new THREE.Color(0x69f0ae),
+    new THREE.Color(0xffd54f)
+  ];
+
+  for (var i = 0; i < particleCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 50;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 50;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 30 - 10;
+    var c = particleColors[Math.floor(Math.random() * particleColors.length)];
+    colors[i * 3] = c.r;
+    colors[i * 3 + 1] = c.g;
+    colors[i * 3 + 2] = c.b;
   }
-  window.addEventListener('scroll', updateParallax, { passive: true });
-  updateParallax();
+
+  var particleGeo = new THREE.BufferGeometry();
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  particleGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+  var particleMat = new THREE.PointsMaterial({
+    size: 0.15,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  var particles = new THREE.Points(particleGeo, particleMat);
+  scene.add(particles);
+
+  // --- Connection lines between nearby particles ---
+  var linePositions = [];
+  var threshold = 4;
+  for (var i = 0; i < particleCount; i++) {
+    for (var j = i + 1; j < particleCount; j++) {
+      var dx = positions[i*3] - positions[j*3];
+      var dy = positions[i*3+1] - positions[j*3+1];
+      var dz = positions[i*3+2] - positions[j*3+2];
+      var dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < threshold) {
+        linePositions.push(positions[i*3], positions[i*3+1], positions[i*3+2]);
+        linePositions.push(positions[j*3], positions[j*3+1], positions[j*3+2]);
+      }
+    }
+  }
+  var lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+  var lineMat = new THREE.LineBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.05 });
+  var lines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lines);
+
+  // --- Mouse tracking ---
+  var mouseX = 0, mouseY = 0;
+  document.addEventListener('mousemove', function(e) {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  // --- Scroll-based depth shift ---
+  var scrollY = 0;
+  window.addEventListener('scroll', function() {
+    scrollY = window.scrollY;
+  }, { passive: true });
+
+  // --- Animate ---
+  function animate() {
+    requestAnimationFrame(animate);
+    var t = Date.now() * 0.001;
+
+    // Globe rotation
+    globe.rotation.y += 0.003;
+    innerGlobe.rotation.y += 0.003;
+
+    // Mouse parallax on globe
+    globe.position.x = 12 + mouseX * 3;
+    globe.position.y = -3 + mouseY * 2;
+    innerGlobe.position.copy(globe.position);
+
+    // Pulse rings
+    scene.children.forEach(function(child) {
+      if (child.userData && child.userData.pulsePhase !== undefined) {
+        var scale = 1 + Math.sin(t * 2 + child.userData.pulsePhase) * 0.5;
+        child.scale.set(scale, scale, scale);
+        child.material.opacity = 0.2 + Math.sin(t * 2 + child.userData.pulsePhase) * 0.2;
+        child.lookAt(globe.position);
+      }
+    });
+
+    // Particles drift
+    var posArr = particles.geometry.attributes.position.array;
+    for (var i = 0; i < particleCount; i++) {
+      posArr[i * 3 + 1] += Math.sin(t + i) * 0.003;
+      posArr[i * 3] += Math.cos(t * 0.5 + i * 0.1) * 0.002;
+    }
+    particles.geometry.attributes.position.needsUpdate = true;
+
+    // Scroll-based camera depth
+    camera.position.z = 30 + scrollY * 0.01;
+    particles.position.y = -scrollY * 0.005;
+    lines.position.y = -scrollY * 0.005;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ========== Three.js 3D Bar Chart ==========
+(function() {
+  var mount = document.getElementById('3d-bar-mount');
+  if (!mount) return;
+
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(50, mount.clientWidth / mount.clientHeight, 0.1, 100);
+  camera.position.set(6, 5, 12);
+  camera.lookAt(0, 2, 0);
+
+  var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(mount.clientWidth, mount.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
+  mount.appendChild(renderer.domElement);
+
+  // Lights
+  var ambient = new THREE.AmbientLight(0xffffff, 0.3);
+  scene.add(ambient);
+  var pointLight = new THREE.PointLight(0x4fc3f7, 1.5, 50);
+  pointLight.position.set(5, 10, 10);
+  scene.add(pointLight);
+  var pointLight2 = new THREE.PointLight(0xb388ff, 0.8, 50);
+  pointLight2.position.set(-5, 5, -5);
+  scene.add(pointLight2);
+
+  // Population data
+  var data = [
+    { year: '1950', value: 2.5, color: 0xffd54f },
+    { year: '1960', value: 3.0, color: 0x4fc3f7 },
+    { year: '1970', value: 3.7, color: 0x69f0ae },
+    { year: '1980', value: 4.4, color: 0xff8a80 },
+    { year: '1990', value: 5.3, color: 0xb388ff },
+    { year: '2000', value: 6.1, color: 0x4fc3f7 },
+    { year: '2010', value: 6.9, color: 0xff8a80 },
+    { year: '2020', value: 7.8, color: 0xb388ff },
+    { year: '2025', value: 8.2, color: 0x4fc3f7 }
+  ];
+
+  var maxVal = 8.5;
+  var barMeshes = [];
+
+  // Glass floor plane
+  var floorGeo = new THREE.PlaneGeometry(12, 6);
+  var floorMat = new THREE.MeshBasicMaterial({ color: 0x302b63, transparent: true, opacity: 0.15 });
+  var floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = -0.02;
+  scene.add(floor);
+
+  // Grid lines on floor
+  var gridHelper = new THREE.GridHelper(12, 12, 0x4fc3f7, 0x1a1a2e);
+  gridHelper.position.y = -0.01;
+  gridHelper.material.transparent = true;
+  gridHelper.material.opacity = 0.15;
+  scene.add(gridHelper);
+
+  data.forEach(function(d, i) {
+    var height = (d.value / maxVal) * 6;
+    var geo = new THREE.BoxGeometry(0.8, height, 0.8);
+    var mat = new THREE.MeshPhongMaterial({
+      color: d.color,
+      transparent: true,
+      opacity: 0.7,
+      shininess: 80,
+      specular: 0x444444
+    });
+    var bar = new THREE.Mesh(geo, mat);
+    bar.position.set(i * 1.3 - (data.length * 1.3 / 2) + 0.65, height / 2, 0);
+    bar.scale.y = 0.01;
+    bar.userData = { targetY: 1, currentY: 0.01 };
+    scene.add(bar);
+    barMeshes.push(bar);
+
+    // Glow cap on top of bar
+    var capGeo = new THREE.BoxGeometry(0.85, 0.1, 0.85);
+    var capMat = new THREE.MeshBasicMaterial({
+      color: d.color,
+      transparent: true,
+      opacity: 0.9
+    });
+    var cap = new THREE.Mesh(capGeo, capMat);
+    cap.position.set(bar.position.x, height + 0.05, 0);
+    cap.scale.y = 0.01;
+    cap.userData = { targetY: 1, currentY: 0.01, offset: height + 0.05 };
+    scene.add(cap);
+    barMeshes.push(cap);
+  });
+
+  // Mouse interaction for 3D chart
+  var chartMouseX = 0, chartMouseY = 0;
+  mount.addEventListener('mousemove', function(e) {
+    var rect = mount.getBoundingClientRect();
+    chartMouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    chartMouseY = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+  });
+
+  function animate3DChart() {
+    requestAnimationFrame(animate3DChart);
+    var t = Date.now() * 0.001;
+
+    // Animate bars growing
+    barMeshes.forEach(function(bar) {
+      if (bar.userData.currentY < bar.userData.targetY) {
+        bar.userData.currentY += 0.02;
+        bar.scale.y = Math.min(bar.userData.currentY, bar.userData.targetY);
+        if (bar.userData.offset) {
+          bar.position.y = bar.userData.offset * bar.scale.y;
+        }
+      }
+    });
+
+    // Rotate camera slightly with mouse
+    camera.position.x = 6 + chartMouseX * 3;
+    camera.position.y = 5 + chartMouseY * 1.5;
+    camera.lookAt(0, 2, 0);
+
+    // Light follows time
+    pointLight.position.x = 5 + Math.sin(t) * 3;
+
+    renderer.render(scene, camera);
+  }
+  animate3DChart();
+
+  // Resize
+  window.addEventListener('resize', function() {
+    camera.aspect = mount.clientWidth / mount.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(mount.clientWidth, mount.clientHeight);
+  });
+})();
+
+// ========== Scroll Reveal ==========
+(function() {
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  reveals.forEach(function(el) { observer.observe(el); });
 })();
 
 // ========== 3D Card Tilt on Hover ==========
@@ -937,7 +1312,7 @@
   });
 })();
 
-// ========== Bar Chart ==========
+// ========== Bar Chart (2D) ==========
 (function() {
   var data = [
     { year: '1950', value: 2.5 },
@@ -979,7 +1354,7 @@
     group.appendChild(wrapper);
     group.appendChild(label);
     chart.appendChild(group);
-    // Animate
+    // Animate when visible
     setTimeout(function() {
       bar.style.height = (d.value / 8.5 * 100) + '%';
     }, 300 + i * 150);

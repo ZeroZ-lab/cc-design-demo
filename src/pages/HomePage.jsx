@@ -1,206 +1,198 @@
+import { routeConfigs } from '../data/routeConfigs';
+
+const demoRoutes = routeConfigs.filter((item) => item.path !== '/');
+const featuredPaths = ['/mars-landing', '/spacex-official', '/llm-sketch-ppt'];
+const featuredRoutes = featuredPaths
+  .map((path) => demoRoutes.find((item) => item.path === path))
+  .filter(Boolean);
+const archiveRoutes = demoRoutes.filter((item) => !featuredPaths.includes(item.path));
+const uniqueTags = new Set(demoRoutes.flatMap((item) => item.tags));
+const routeCount = demoRoutes.length;
+
+const toneByPath = {
+  '/mars-landing': 'cryo',
+  '/spacex-official': 'lunar',
+  '/llm-sketch-ppt': 'paper',
+  '/enterprise-hero': 'signal',
+  '/sci-fi-website': 'matrix',
+  '/tesla-3d-website': 'chrome',
+  '/aether': 'prism',
+  '/mech-ops': 'tactical',
+  '/retro-pixel': 'arcade',
+  '/glassmorphism-dashboard': 'glass'
+};
+
+function getRouteTone(path) {
+  return toneByPath[path] ?? 'signal';
+}
+
 export default function HomePage() {
   return (
-    <div className="shell">
-      <header className="topbar">
-        <div className="brand">
-          <div className="brand-mark" />
-          <div className="brand-copy">
-            <strong>CC DESIGN DEMO</strong>
-            <span>Static preview collection deployed on Vercel</span>
-          </div>
+    <div className="overview-page">
+      <div className="overview-noise" />
+
+      <header className="overview-topbar">
+        <div className="overview-topbar-inner">
+          <a className="overview-brand" href="/">
+            <span className="overview-brand-mark">CC</span>
+            <span className="overview-brand-copy">
+              <strong>CC Design Demo</strong>
+              <span>Curated visual experiments in one React shell</span>
+            </span>
+          </a>
+
+          <nav className="overview-nav" aria-label="Homepage sections">
+            <a href="#featured">Featured</a>
+            <a href="#archive">Archive</a>
+            <a href="/mars-landing">Latest drop</a>
+          </nav>
         </div>
-        <a href="#projects">浏览作品</a>
       </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow">Multi-page Vercel Preview</div>
-          <h1>
-            Ten demos.<span className="accent">One entrypoint.</span>
-          </h1>
-          <p>
-            这个站点把九个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
-            适合直接发 Vercel Preview 链接给别人查看。
-          </p>
-          <div className="hero-actions">
-            <a className="primary" href="/mars-landing">
-              Open Mars Landing
-            </a>
-            <a className="primary" href="/spacex-official">
-              Open SpaceX Concept
-            </a>
-            <a className="primary" href="/llm-sketch-ppt">
-              Open LLM Sketch PPT
-            </a>
-            <a href="/aether">Open AETHER</a>
-            <a href="/enterprise-hero">Open Enterprise Hero</a>
-          </div>
-        </div>
+      <main className="overview-shell">
+        <section className="overview-hero">
+          <div className="overview-hero-copy">
+            <div className="overview-kicker">Design vault / 2026 selection</div>
+            <h1>
+              A launchpad for
+              <span> cinematic one-off interfaces.</span>
+            </h1>
+            <p>
+              这是一个把高保真概念页集中编排的入口，不再只是“作品链接列表”。首页负责做策展：
+              先给出气质，再给出精选，再把全部实验按强视觉类别整理成可快速浏览的档案。
+            </p>
 
-        <aside className="hero-meta">
-          <div className="meta-card">
-            <span className="meta-label">Collection</span>
-            <span className="meta-value">10 static design demos</span>
-            <div className="meta-note">保持原始 HTML 页面不变，通过静态路由暴露稳定访问路径。</div>
+            <div className="overview-hero-actions">
+              <a className="overview-button primary" href="/mars-landing">
+                Enter ARES I
+              </a>
+              <a className="overview-button" href="#featured">
+                Browse highlights
+              </a>
+            </div>
           </div>
-          <div className="meta-card">
-            <span className="meta-label">Deploy mode</span>
-            <span className="meta-value">Vercel Preview</span>
-            <div className="meta-note">不引入构建链，不使用 SSR，只部署当前目录中的静态文件。</div>
-          </div>
-          <div className="meta-card">
-            <span className="meta-label">Routes</span>
-            <span className="meta-value">
-              /, /mars-landing, /spacex-official, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website,
-              /tesla-3d-website, /aether, /mech-ops, /retro-pixel, /glassmorphism-dashboard
-            </span>
-          </div>
-        </aside>
-      </section>
 
-      <main className="grid" id="projects">
-        <a className="card enterprise" href="/mars-landing">
-          <span className="card-tag">Mars Mission</span>
-          <h2>
-            ARES I
-            <br />
-            Mars Landing
-          </h2>
-          <p>电影级火星登月品牌发布页，强调红色地平线、任务倒计时和首次着陆时刻的史诗叙事。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/mars-landing</strong>
-          </div>
-        </a>
+          <aside className="overview-hero-aside">
+            <div className="overview-signal-card">
+              <span className="eyebrow">Collection status</span>
+              <strong>{routeCount} live demos</strong>
+              <p>由同一套 React 路由托管，每个页面保留独立 URL，适合直接分享预览链接。</p>
+            </div>
 
-        <a className="card enterprise" href="/spacex-official">
-          <span className="card-tag">Aerospace</span>
-          <h2>
-            SpaceX
-            <br />
-            Official Concept
-          </h2>
-          <p>参考官方视觉气质的黑白极简航天落地页，强调任务舞台、参数叙事和重型发射系统氛围。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/spacex-official</strong>
-          </div>
-        </a>
+            <div className="overview-stat-grid">
+              <div className="overview-stat-card">
+                <span className="label">Formats</span>
+                <strong>Landing / Deck / HUD</strong>
+              </div>
+              <div className="overview-stat-card">
+                <span className="label">Tags</span>
+                <strong>{uniqueTags.size} visual signals</strong>
+              </div>
+              <div className="overview-stat-card">
+                <span className="label">Deploy</span>
+                <strong>Vercel-ready</strong>
+              </div>
+            </div>
+          </aside>
+        </section>
 
-        <a className="card enterprise" href="/llm-sketch-ppt">
-          <span className="card-tag">Presentation</span>
-          <h2>
-            LLM
-            <br />
-            Sketch PPT
-          </h2>
-          <p>手绘白板风网页演示，拆解 token、embedding、attention、训练、推理与局限。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/llm-sketch-ppt</strong>
+        <section className="overview-featured" id="featured">
+          <div className="overview-section-head">
+            <div>
+              <span className="eyebrow">Featured drops</span>
+              <h2>Three pages that set the tone.</h2>
+            </div>
+            <p>
+              不把所有作品平铺到第一屏，而是先挑出三种最不同的表达方式：史诗航天、克制品牌、手绘讲解。
+            </p>
           </div>
-        </a>
 
-        <a className="card enterprise" href="/enterprise-hero">
-          <span className="card-tag">Enterprise</span>
-          <h2>
-            NOVA
-            <br />
-            Enterprise Hero
-          </h2>
-          <p>高对比渐变、中心舞台式布局和沉浸式氛围，适合作为品牌首屏概念稿。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/enterprise-hero</strong>
+          <div className="overview-feature-grid">
+            {featuredRoutes.map((item, index) => (
+              <a key={item.path} className={`feature-card ${getRouteTone(item.path)}`} href={item.path}>
+                <div className="feature-meta">
+                  <span className="feature-index">0{index + 1}</span>
+                  <span className="feature-path">{item.path}</span>
+                </div>
+                <div className="feature-body">
+                  <span className="feature-label">{item.label}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                </div>
+                <div className="feature-tags">
+                  {item.tags.slice(0, 3).map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              </a>
+            ))}
           </div>
-        </a>
+        </section>
 
-        <a className="card scifi" href="/sci-fi-website">
-          <span className="card-tag">Sci-Fi</span>
-          <h2>
-            NEXUS
-            <br />
-            Quantum Interface
-          </h2>
-          <p>霓虹赛博风、扫描线和网格背景，强调科技感和未来交互界面语言。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/sci-fi-website</strong>
+        <section className="overview-runway">
+          <div className="overview-section-head compact">
+            <div>
+              <span className="eyebrow">Collection logic</span>
+              <h2>One shell, many moods.</h2>
+            </div>
           </div>
-        </a>
 
-        <a className="card tesla" href="/tesla-3d-website">
-          <span className="card-tag">Automotive</span>
-          <h2>
-            Tesla
-            <br />
-            3D Website
-          </h2>
-          <p>偏产品营销页方向，整合 3D 画布、性能叙事和强视觉对比的汽车品牌页面。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/tesla-3d-website</strong>
-          </div>
-        </a>
+          <div className="overview-runway-grid">
+            <article className="runway-panel">
+              <span className="eyebrow">Why this homepage</span>
+              <p>
+                旧首页的问题不是信息不够，而是所有作品同权。新版本把首页设计成目录页和品牌页的混合体，
+                先建立语气，再允许用户进入每一条分支。
+              </p>
+            </article>
 
-        <a className="card aether" href="/aether">
-          <span className="card-tag">3D Interactive</span>
-          <h2>
-            AETHER
-            <br />
-            Quantum Particles
-          </h2>
-          <p>5000 颗粒子实时 WebGL 渲染，四种形态无缝变形，鼠标力场交互，单文件零构建。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/aether</strong>
-          </div>
-        </a>
+            <article className="runway-panel">
+              <span className="eyebrow">Visual spectrum</span>
+              <ul>
+                <li>Editorial aerospace and launch storytelling</li>
+                <li>Cyber interfaces, tactical HUDs, and 3D concept scenes</li>
+                <li>Sketch-style explanation decks and tactile retro systems</li>
+              </ul>
+            </article>
 
-        <a className="card mech" href="/mech-ops">
-          <span className="card-tag">Landscape / Mobile</span>
-          <h2>
-            MECH-OPS
-            <br />
-            管制面板
-          </h2>
-          <p>横屏机动兵器作战管制面板——雷达扫描、实时光学馈送、摇杆操控，手机横屏体验。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/mech-ops</strong>
+            <article className="runway-panel emphasis">
+              <span className="eyebrow">Latest addition</span>
+              <strong>ARES I / Mars Landing</strong>
+              <p>作为当前集合里最完整的一页，它被放在首页首推位，并承担新视觉基调。</p>
+              <a href="/mars-landing">Open latest mission</a>
+            </article>
           </div>
-        </a>
+        </section>
 
-        <a className="card aether" href="/retro-pixel">
-          <span className="card-tag">Retro / 8-Bit</span>
-          <h2>
-            PIXEL QUEST
-            <br />
-            像素冒险
-          </h2>
-          <p>8-bit 像素风 RPG 界面，CRT 扫描线、角色选择、回合制战斗和地牢迷宫地图。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/retro-pixel</strong>
+        <section className="overview-archive" id="archive">
+          <div className="overview-section-head">
+            <div>
+              <span className="eyebrow">Full archive</span>
+              <h2>Every route, still one click away.</h2>
+            </div>
+            <p>全部作品保留独立 URL，但编排从“均匀卡片墙”改成更像设计目录的卡片档案。</p>
           </div>
-        </a>
 
-        <a className="card scifi" href="/glassmorphism-dashboard">
-          <span className="card-tag">Data / Glass</span>
-          <h2>
-            POPULATION
-            <br />
-            Glass Dashboard
-          </h2>
-          <p>毛玻璃人口数据看板，3D 卡片倾斜交互、滚动差速分层和动态图表可视化。</p>
-          <div className="card-footer">
-            <span>Path</span>
-            <strong>/glassmorphism-dashboard</strong>
+          <div className="overview-archive-grid">
+            {archiveRoutes.map((item) => (
+              <a key={item.path} className={`archive-card ${getRouteTone(item.path)}`} href={item.path}>
+                <span className="archive-label">{item.label}</span>
+                <h3>{item.name}</h3>
+                <p>{item.summary}</p>
+                <div className="archive-footer">
+                  <span>{item.path}</span>
+                  <span>{item.tags[0]}</span>
+                </div>
+              </a>
+            ))}
           </div>
-        </a>
+        </section>
       </main>
 
-      <footer className="footer">Preview entry for the local static demo set.</footer>
+      <footer className="overview-footer">
+        <span>CC Design Demo / {routeCount} routes</span>
+        <span>Built as a React collection shell for static visual experiments</span>
+      </footer>
     </div>
   );
 }

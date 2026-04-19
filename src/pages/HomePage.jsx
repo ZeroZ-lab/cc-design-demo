@@ -16,10 +16,10 @@ export default function HomePage() {
         <div className="hero-copy">
           <div className="eyebrow">Multi-page Vercel Preview</div>
           <h1>
-            Six demos.<span className="accent">One entrypoint.</span>
+            Seven demos.<span className="accent">One entrypoint.</span>
           </h1>
           <p>
-            这个站点把六个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
+            这个站点把七个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
             适合直接发 Vercel Preview 链接给别人查看。
           </p>
           <div className="hero-actions">
@@ -34,7 +34,7 @@ export default function HomePage() {
         <aside className="hero-meta">
           <div className="meta-card">
             <span className="meta-label">Collection</span>
-            <span className="meta-value">6 static design demos</span>
+            <span className="meta-value">7 static design demos</span>
             <div className="meta-note">保持原始 HTML 页面不变，通过静态路由暴露稳定访问路径。</div>
           </div>
           <div className="meta-card">
@@ -46,7 +46,7 @@ export default function HomePage() {
             <span className="meta-label">Routes</span>
             <span className="meta-value">
               /, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website, /tesla-3d-website, /aether,
-              /mech-ops
+              /mech-ops, /retro-pixel
             </span>
           </div>
         </aside>
@@ -134,6 +134,20 @@ export default function HomePage() {
           <div className="card-footer">
             <span>Path</span>
             <strong>/mech-ops</strong>
+          </div>
+        </a>
+
+        <a className="card aether" href="/retro-pixel">
+          <span className="card-tag">Retro / 8-Bit</span>
+          <h2>
+            PIXEL QUEST
+            <br />
+            像素冒险
+          </h2>
+          <p>8-bit 像素风 RPG 界面，CRT 扫描线、角色选择、回合制战斗和地牢迷宫地图。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/retro-pixel</strong>
           </div>
         </a>
       </main>

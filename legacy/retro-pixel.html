@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIXEL QUEST — 8-Bit Retro Adventure</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #33ff33;
+      --green-dim: #1a8c1a;
+      --amber: #ffb000;
+      --amber-dim: #8c6200;
+      --red: #ff3333;
+      --cyan: #00ffff;
+      --magenta: #ff00ff;
+      --bg: #0a0a12;
+      --panel-bg: #12121e;
+      --border: #33ff33;
+      --pixel: 'Press Start 2P', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--green);
+      font-family: var(--pixel);
+      min-height: 100vh;
+      overflow-x: hidden;
+      image-rendering: pixelated;
+    }
+
+    /* CRT Scanlines Overlay */
+    .crt-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+    .crt-overlay::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0, 0, 0, 0.35) 100%);
+    }
+
+    /* Flicker Animation */
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      92% { opacity: 1; }
+      93% { opacity: 0.8; }
+      94% { opacity: 1; }
+    }
+    body { animation: flicker 4s infinite; }
+
+    /* Pixel Border Utility */
+    .pixel-border {
+      border: 4px solid var(--green);
+      box-shadow:
+        inset -4px -4px 0 rgba(0,0,0,0.3),
+        inset 4px 4px 0 rgba(255,255,255,0.1),
+        0 0 0 4px #000,
+        0 0 0 6px var(--green-dim);
+      background: var(--panel-bg);
+      padding: 16px;
+      position: relative;
+    }
+    .pixel-border::before {
+      content: '';
+      position: absolute;
+      top: -2px; left: -2px; right: -2px; bottom: -2px;
+      border: 2px solid rgba(51, 255, 51, 0.15);
+      pointer-events: none;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 3px solid var(--green);
+      background: linear-gradient(180deg, #1a1a2e 0%, var(--bg) 100%);
+    }
+    .top-bar .logo {
+      font-size: 12px;
+      text-shadow: 0 0 10px var(--green), 0 0 20px var(--green-dim);
+      letter-spacing: 3px;
+    }
+    .top-bar .nav-links {
+      display: flex;
+      gap: 20px;
+    }
+    .top-bar .nav-links a {
+      color: var(--green-dim);
+      text-decoration: none;
+      font-size: 8px;
+      transition: color 0.1s;
+      cursor: pointer;
+    }
+    .top-bar .nav-links a:hover,
+    .top-bar .nav-links a.active {
+      color: var(--green);
+      text-shadow: 0 0 8px var(--green);
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      position: relative;
+    }
+    .hero-title {
+      font-size: clamp(20px, 5vw, 48px);
+      text-shadow:
+        4px 4px 0 #000,
+        0 0 20px var(--green),
+        0 0 40px var(--green-dim),
+        0 0 80px rgba(51, 255, 51, 0.3);
+      margin-bottom: 8px;
+      letter-spacing: 6px;
+    }
+    .hero-subtitle {
+      font-size: clamp(8px, 1.5vw, 12px);
+      color: var(--amber);
+      text-shadow: 0 0 10px var(--amber);
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+
+    /* Blinking Cursor */
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .blink { animation: blink 1s step-end infinite; }
+
+    /* Stars Background */
+    .starfield {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+    .star {
+      position: absolute;
+      background: #fff;
+      border-radius: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 1; }
+    }
+
+    /* Stats Panel */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .stat-box {
+      text-align: center;
+    }
+    .stat-box .stat-label {
+      font-size: 7px;
+      color: var(--green-dim);
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+    .stat-box .stat-value {
+      font-size: 24px;
+      text-shadow: 0 0 15px var(--green);
+    }
+    .stat-box .stat-value.amber { color: var(--amber); text-shadow: 0 0 15px var(--amber); }
+    .stat-box .stat-value.cyan { color: var(--cyan); text-shadow: 0 0 15px var(--cyan); }
+    .stat-box .stat-value.magenta { color: var(--magenta); text-shadow: 0 0 15px var(--magenta); }
+
+    /* HP Bar */
+    .hp-bar-container {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .hp-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8px;
+      margin-bottom: 6px;
+    }
+    .hp-bar-bg {
+      height: 20px;
+      background: #1a0a0a;
+      border: 2px solid var(--red);
+      position: relative;
+      overflow: hidden;
+    }
+    .hp-bar-fill {
+      height: 100%;
+      background: linear-gradient(180deg, #ff6666, #ff3333, #cc0000);
+      transition: width 1s steps(20);
+      position: relative;
+    }
+    .hp-bar-fill::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 8px,
+        rgba(0,0,0,0.2) 8px,
+        rgba(0,0,0,0.2) 10px
+      );
+    }
+
+    /* Character Select */
+    .section-title {
+      text-align: center;
+      font-size: 10px;
+      color: var(--amber);
+      text-shadow: 0 0 10px var(--amber);
+      margin: 40px 0 20px;
+      letter-spacing: 2px;
+    }
+
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px;
+      padding: 0 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .char-card {
+      cursor: pointer;
+      transition: transform 0.1s;
+      text-align: center;
+    }
+    .char-card:hover {
+      transform: translateY(-4px);
+    }
+    .char-card:hover .pixel-border {
+      border-color: var(--amber);
+      box-shadow:
+        inset -4px -4px 0 rgba(0,0,0,0.3),
+        inset 4px 4px 0 rgba(255,255,255,0.1),
+        0 0 0 4px #000,
+        0 0 0 6px var(--amber-dim),
+        0 0 20px rgba(255, 176, 0, 0.3);
+    }
+    .char-card:hover .pixel-border::before {
+      border-color: rgba(255, 176, 0, 0.3);
+    }
+    .char-card.selected .pixel-border {
+      border-color: var(--cyan);
+      box-shadow:
+        inset -4px -4px 0 rgba(0,0,0,0.3),
+        inset 4px 4px 0 rgba(255,255,255,0.1),
+        0 0 0 4px #000,
+        0 0 0 6px var(--cyan),
+        0 0 30px rgba(0, 255, 255, 0.4);
+    }
+    .char-sprite {
+      font-size: 40px;
+      margin-bottom: 10px;
+      line-height: 1;
+    }
+    .char-name {
+      font-size: 9px;
+      margin-bottom: 6px;
+      color: var(--green);
+    }
+    .char-class {
+      font-size: 6px;
+      color: var(--amber-dim);
+      margin-bottom: 8px;
+    }
+    .char-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      font-size: 6px;
+    }
+    .char-stats span {
+      color: var(--green-dim);
+    }
+    .char-stats strong {
+      color: var(--green);
+    }
+
+    /* Inventory */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .inv-slot {
+      aspect-ratio: 1;
+      background: #1a1a2e;
+      border: 2px solid var(--green-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.1s;
+      position: relative;
+    }
+    .inv-slot:hover {
+      border-color: var(--amber);
+      background: #2a2a3e;
+    }
+    .inv-slot.has-item::after {
+      content: attr(data-count);
+      position: absolute;
+      bottom: 1px;
+      right: 3px;
+      font-size: 6px;
+      color: var(--amber);
+      font-family: var(--pixel);
+    }
+    .inv-slot.empty {
+      opacity: 0.4;
+    }
+
+    /* Dialog Box */
+    .dialog-box {
+      max-width: 600px;
+      margin: 30px auto;
+    }
+    .dialog-speaker {
+      font-size: 8px;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+    .dialog-text {
+      font-size: 8px;
+      line-height: 2.2;
+      color: var(--green);
+    }
+    .dialog-text .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 10px;
+      background: var(--green);
+      animation: blink 0.8s step-end infinite;
+      vertical-align: middle;
+      margin-left: 2px;
+    }
+
+    /* Battle Scene */
+    .battle-scene {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .battle-field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 30px 20px;
+      background:
+        linear-gradient(180deg, transparent 0%, rgba(51, 255, 51, 0.03) 100%);
+      border: 2px dashed var(--green-dim);
+      margin-bottom: 16px;
+      min-height: 120px;
+    }
+    .battle-enemy, .battle-player {
+      text-align: center;
+    }
+    .battle-sprite {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+    .battle-name {
+      font-size: 7px;
+      margin-bottom: 4px;
+    }
+    .battle-hp {
+      font-size: 6px;
+      color: var(--green-dim);
+    }
+    .battle-vs {
+      font-size: 16px;
+      color: var(--red);
+      text-shadow: 0 0 20px var(--red);
+      animation: blink 0.5s step-end infinite;
+    }
+    .battle-menu {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .battle-btn {
+      background: var(--panel-bg);
+      border: 2px solid var(--green-dim);
+      color: var(--green);
+      font-family: var(--pixel);
+      font-size: 8px;
+      padding: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.1s;
+    }
+    .battle-btn:hover {
+      border-color: var(--amber);
+      color: var(--amber);
+      background: #1a1a2e;
+      text-shadow: 0 0 10px var(--amber);
+    }
+    .battle-btn .btn-icon {
+      margin-right: 6px;
+    }
+    .battle-log {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border-left: 3px solid var(--green-dim);
+      font-size: 7px;
+      line-height: 2;
+      color: var(--green-dim);
+      min-height: 60px;
+    }
+    .battle-log .log-new {
+      color: var(--green);
+    }
+
+    /* Mini Map */
+    .minimap-container {
+      max-width: 300px;
+      margin: 0 auto;
+    }
+    .minimap {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 2px;
+    }
+    .map-cell {
+      aspect-ratio: 1;
+      border: 1px solid rgba(51, 255, 51, 0.1);
+    }
+    .map-cell.wall { background: #2a2a3e; }
+    .map-cell.floor { background: #0a0a12; }
+    .map-cell.path { background: var(--green-dim); opacity: 0.3; }
+    .map-cell.player {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+    .map-cell.treasure {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+    .map-cell.enemy {
+      background: var(--red);
+      box-shadow: 0 0 8px var(--red);
+    }
+    .map-cell.exit {
+      background: var(--magenta);
+      box-shadow: 0 0 8px var(--magenta);
+    }
+    .minimap-legend {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 12px;
+      font-size: 6px;
+    }
+    .minimap-legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      display: inline-block;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 7px;
+      color: var(--green-dim);
+      border-top: 2px solid var(--green-dim);
+      margin-top: 40px;
+    }
+    .footer a {
+      color: var(--green);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .char-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .inventory-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Glitch Effect */
+    @keyframes glitch {
+      0%, 90%, 100% { transform: translate(0); }
+      91% { transform: translate(-2px, 1px); }
+      92% { transform: translate(2px, -1px); }
+      93% { transform: translate(-1px, 2px); }
+      94% { transform: translate(0); }
+    }
+    .glitch { animation: glitch 5s infinite; }
+
+    /* Scanline move */
+    @keyframes scanline-move {
+      0% { top: -100%; }
+      100% { top: 100%; }
+    }
+    .moving-scanline {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: rgba(51, 255, 51, 0.08);
+      z-index: 9998;
+      pointer-events: none;
+      animation: scanline-move 8s linear infinite;
+    }
+
+    /* Boot sequence */
+    @keyframes type-in {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+    .boot-line {
+      font-size: 7px;
+      color: var(--green-dim);
+      line-height: 2;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    /* Pixel Art Character (CSS-drawn) */
+    .pixel-char {
+      width: 32px;
+      height: 32px;
+      display: inline-grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      image-rendering: pixelated;
+    }
+
+    /* Experience bar */
+    .exp-bar-bg {
+      height: 12px;
+      background: #1a1a2e;
+      border: 2px solid var(--cyan);
+      max-width: 600px;
+      margin: 8px auto 0;
+    }
+    .exp-bar-fill {
+      height: 100%;
+      background: linear-gradient(180deg, #66ffff, #00cccc);
+      width: 65%;
+      transition: width 1s steps(15);
+    }
+    .exp-label {
+      display: flex;
+      justify-content: space-between;
+      max-width: 600px;
+      margin: 6px auto 0;
+      padding: 0 20px;
+      font-size: 7px;
+    }
+    .exp-label .level { color: var(--cyan); }
+    .exp-label .exp-text { color: var(--green-dim); }
+  </style>
+</head>
+<body>
+
+<div class="crt-overlay"></div>
+<div class="moving-scanline"></div>
+<div class="starfield" id="starfield"></div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="logo">&#9650; PIXEL QUEST</div>
+  <div class="nav-links">
+    <a class="active">STATUS</a>
+    <a>INVENTORY</a>
+    <a>MAP</a>
+    <a>BATTLE</a>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero glitch">
+  <div class="hero-title">PIXEL QUEST</div>
+  <div class="hero-subtitle">&#9733; 8-BIT RETRO ADVENTURE &#9733;</div>
+  <div class="boot-line" style="text-align:center;">
+    > SYSTEM INITIALIZED<span class="blink">_</span>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-box pixel-border">
+    <div class="stat-label">GOLD</div>
+    <div class="stat-value amber" id="gold">2,048</div>
+  </div>
+  <div class="stat-box pixel-border">
+    <div class="stat-label">EXP</div>
+    <div class="stat-value cyan">12,450</div>
+  </div>
+  <div class="stat-box pixel-border">
+    <div class="stat-label">LEVEL</div>
+    <div class="stat-value">42</div>
+  </div>
+  <div class="stat-box pixel-border">
+    <div class="stat-label">ENEMIES</div>
+    <div class="stat-value magenta" id="enemy-count">127</div>
+  </div>
+</div>
+
+<!-- HP & EXP Bars -->
+<div class="hp-bar-container">
+  <div class="hp-label">
+    <span>HP</span>
+    <span id="hp-text">342 / 500</span>
+  </div>
+  <div class="hp-bar-bg">
+    <div class="hp-bar-fill" id="hp-fill" style="width: 68%"></div>
+  </div>
+</div>
+<div class="exp-label">
+  <span class="level">LV.42</span>
+  <span class="exp-text">EXP: 12450 / 20000</span>
+</div>
+<div class="exp-bar-bg" style="max-width:600px;margin:0 auto;">
+  <div class="exp-bar-fill"></div>
+</div>
+
+<!-- Character Select -->
+<div class="section-title">&#9658; CHOOSE YOUR HERO &#9668;</div>
+<div class="char-grid">
+  <div class="char-card" onclick="selectChar(this, 'KNIGHT')">
+    <div class="pixel-border">
+      <div class="char-sprite">&#9876;&#65039;</div>
+      <div class="char-name">SIR ARTHUR</div>
+      <div class="char-class">CLASS: KNIGHT</div>
+      <div class="char-stats">
+        <span>ATK <strong>85</strong></span>
+        <span>DEF <strong>92</strong></span>
+        <span>SPD <strong>45</strong></span>
+        <span>INT <strong>30</strong></span>
+      </div>
+    </div>
+  </div>
+  <div class="char-card" onclick="selectChar(this, 'MAGE')">
+    <div class="pixel-border">
+      <div class="char-sprite">&#129504;</div>
+      <div class="char-name">MERLINA</div>
+      <div class="char-class">CLASS: MAGE</div>
+      <div class="char-stats">
+        <span>ATK <strong>60</strong></span>
+        <span>DEF <strong>35</strong></span>
+        <span>SPD <strong>55</strong></span>
+        <span>INT <strong>98</strong></span>
+      </div>
+    </div>
+  </div>
+  <div class="char-card" onclick="selectChar(this, 'ROGUE')">
+    <div class="pixel-border">
+      <div class="char-sprite">&#128483;&#65039;</div>
+      <div class="char-name">SHADOW</div>
+      <div class="char-class">CLASS: ROGUE</div>
+      <div class="char-stats">
+        <span>ATK <strong>70</strong></span>
+        <span>DEF <strong>40</strong></span>
+        <span>SPD <strong>99</strong></span>
+        <span>INT <strong>55</strong></span>
+      </div>
+    </div>
+  </div>
+  <div class="char-card" onclick="selectChar(this, 'PALADIN')">
+    <div class="pixel-border">
+      <div class="char-sprite">&#128737;&#65039;</div>
+      <div class="char-name">AEGIS</div>
+      <div class="char-class">CLASS: PALADIN</div>
+      <div class="char-stats">
+        <span>ATK <strong>65</strong></span>
+        <span>DEF <strong>99</strong></span>
+        <span>SPD <strong>30</strong></span>
+        <span>INT <strong>75</strong></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Box -->
+<div class="dialog-box pixel-border" style="margin-top:30px;">
+  <div class="dialog-speaker">&#9658; ELDER SAGE:</div>
+  <div class="dialog-text" id="dialog-text">
+    Welcome, brave adventurer... The Pixel Kingdom is in grave danger. The Dark Lord has stolen the eight Crystals of Light. Only you can restore balance to the realm...<span class="cursor"></span>
+  </div>
+</div>
+
+<!-- Battle Scene -->
+<div class="section-title">&#9658; BATTLE ENCOUNTER &#9668;</div>
+<div class="battle-scene">
+  <div class="pixel-border">
+    <div class="battle-field">
+      <div class="battle-enemy">
+        <div class="battle-sprite">&#128121;</div>
+        <div class="battle-name">DARK SLIME</div>
+        <div class="battle-hp">HP: 280/300</div>
+      </div>
+      <div class="battle-vs">VS</div>
+      <div class="battle-player">
+        <div class="battle-sprite">&#129497;&#8205;&#9794;&#65039;</div>
+        <div class="battle-name">SIR ARTHUR</div>
+        <div class="battle-hp">HP: 342/500</div>
+      </div>
+    </div>
+
+    <div class="battle-menu">
+      <button class="battle-btn" onclick="battleAction('ATTACK')">
+        <span class="btn-icon">&#9876;&#65039;</span>ATTACK
+      </button>
+      <button class="battle-btn" onclick="battleAction('MAGIC')">
+        <span class="btn-icon">&#10024;</span>MAGIC
+      </button>
+      <button class="battle-btn" onclick="battleAction('ITEM')">
+        <span class="btn-icon">&#128137;</span>ITEM
+      </button>
+      <button class="battle-btn" onclick="battleAction('RUN')">
+        <span class="btn-icon">&#127939;</span>RUN
+      </button>
+    </div>
+
+    <div class="battle-log" id="battle-log">
+      <div>A wild DARK SLIME appeared!</div>
+      <div class="log-new">> What will you do?</div>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory -->
+<div class="section-title">&#9658; INVENTORY &#9668;</div>
+<div style="max-width:400px;margin:0 auto;padding:0 20px;">
+  <div class="pixel-border">
+    <div class="inventory-grid">
+      <div class="inv-slot has-item" data-count="x5">&#9876;&#65039;</div>
+      <div class="inv-slot has-item" data-count="x3">&#128137;</div>
+      <div class="inv-slot has-item" data-count="x1">&#128081;</div>
+      <div class="inv-slot has-item" data-count="x12">&#128142;</div>
+      <div class="inv-slot has-item" data-count="x1">&#128296;</div>
+      <div class="inv-slot has-item" data-count="x7">&#127811;</div>
+      <div class="inv-slot has-item" data-count="x1">&#128214;</div>
+      <div class="inv-slot has-item" data-count="x2">&#129412;</div>
+      <div class="inv-slot empty"></div>
+      <div class="inv-slot empty"></div>
+      <div class="inv-slot empty"></div>
+      <div class="inv-slot empty"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Mini Map -->
+<div class="section-title">&#9658; DUNGEON MAP &#9668;</div>
+<div style="max-width:340px;margin:0 auto;padding:0 20px;">
+  <div class="pixel-border">
+    <div class="minimap" id="minimap"></div>
+    <div class="minimap-legend">
+      <span><span class="legend-dot" style="background:var(--cyan)"></span> YOU</span>
+      <span><span class="legend-dot" style="background:var(--amber)"></span> ITEM</span>
+      <span><span class="legend-dot" style="background:var(--red)"></span> ENEMY</span>
+      <span><span class="legend-dot" style="background:var(--magenta)"></span> EXIT</span>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>PIXEL QUEST v1.0 &mdash; A retro 8-bit concept page</p>
+  <p style="margin-top:8px;">INSERT COIN TO CONTINUE <span class="blink">&#9646;</span></p>
+  <p style="margin-top:12px;"><a href="/">BACK TO INDEX</a></p>
+</div>
+
+<script>
+  // Star field
+  (function() {
+    var sf = document.getElementById('starfield');
+    for (var i = 0; i < 80; i++) {
+      var s = document.createElement('div');
+      s.className = 'star';
+      var size = Math.random() > 0.8 ? 2 : 1;
+      s.style.width = size + 'px';
+      s.style.height = size + 'px';
+      s.style.left = Math.random() * 100 + '%';
+      s.style.top = Math.random() * 100 + '%';
+      s.style.animation = 'twinkle ' + (2 + Math.random() * 4) + 's ease-in-out ' + (Math.random() * 3) + 's infinite';
+      sf.appendChild(s);
+    }
+  })();
+
+  // Character select
+  function selectChar(el, cls) {
+    document.querySelectorAll('.char-card').forEach(function(c) { c.classList.remove('selected'); });
+    el.classList.add('selected');
+    var dialogs = {
+      KNIGHT: 'Sir Arthur raises his blade! A noble warrior sworn to protect the Pixel Kingdom. His strength is unmatched in close combat!',
+      MAGE: 'Merlina channels arcane energy! Master of elemental magic, her spells can devastate entire armies. But beware her fragile defense!',
+      ROGUE: 'Shadow melts into darkness... The fastest hero alive. Critical strikes from the shadows are his specialty!',
+      PALADIN: 'Aegis stands firm! A holy warrior with impenetrable defense and healing powers. The ultimate guardian of the realm!'
+    };
+    document.getElementById('dialog-text').innerHTML = dialogs[cls] + '<span class="cursor"></span>';
+  }
+
+  // Battle actions
+  var battleMessages = {
+    ATTACK: ['> Sir Arthur swings his blade! 48 DMG!', '> Critical hit! The Dark Slime trembles!'],
+    MAGIC: ['> Merlina casts FIREBALL! 72 DMG!', '> The flames engulf the enemy!'],
+    ITEM: ['> Used Health Potion! +100 HP restored.', '> You feel revitalized!'],
+    RUN: ['> You attempt to flee...', '> Got away safely! ...just kidding, this is a demo page!']
+  };
+
+  function battleAction(type) {
+    var log = document.getElementById('battle-log');
+    var msgs = battleMessages[type];
+    msgs.forEach(function(msg) {
+      var div = document.createElement('div');
+      div.className = 'log-new';
+      div.textContent = msg;
+      log.appendChild(div);
+    });
+    log.scrollTop = log.scrollHeight;
+    // Keep only last 6 messages
+    while (log.children.length > 6) {
+      log.removeChild(log.firstChild);
+    }
+  }
+
+  // Mini Map
+  (function() {
+    var map = [
+      [1,1,1,1,1,1,1,1],
+      [1,0,0,0,1,0,5,1],
+      [1,0,1,0,1,0,1,1],
+      [1,0,1,0,0,0,0,1],
+      [1,0,1,1,1,1,0,1],
+      [1,0,0,0,0,1,0,1],
+      [1,1,1,1,0,0,4,1],
+      [1,1,1,1,1,1,1,1]
+    ];
+    var classes = { 0: 'floor', 1: 'wall', 2: 'path', 3: 'player', 4: 'exit', 5: 'treasure' };
+    // Place player
+    map[3][3] = 3;
+    map[5][2] = 6; // enemy
+    var container = document.getElementById('minimap');
+    map.forEach(function(row) {
+      row.forEach(function(cell) {
+        var div = document.createElement('div');
+        div.className = 'map-cell ' + (classes[cell] || 'enemy');
+        container.appendChild(div);
+      });
+    });
+  })();
+
+  // Animate gold counter
+  (function() {
+    var goldEl = document.getElementById('gold');
+    var current = 2048;
+    setInterval(function() {
+      current += Math.floor(Math.random() * 50);
+      goldEl.textContent = current.toLocaleString();
+    }, 3000);
+  })();
+</script>
+
+</body>
+</html>

@@ -6,6 +6,7 @@ const EnterpriseHeroPage = lazy(() => import('../pages/EnterpriseHeroPage'));
 const SciFiWebsitePage = lazy(() => import('../pages/SciFiWebsitePage'));
 const Tesla3dPage = lazy(() => import('../pages/Tesla3dPage'));
 const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
+const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 
 export const routeConfigs = [
   {
@@ -13,7 +14,7 @@ export const routeConfigs = [
     title: 'CC Design Demo',
     label: 'Overview',
     name: 'CC Design Demo',
-    summary: '六个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
+    summary: '七个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
     accent: 'linear-gradient(135deg, #49d8ff, #ff5f87)',
     tags: ['React shell', 'Multi-route', 'Vercel-ready'],
     component: HomePageFallback
@@ -77,6 +78,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #00ff88, #00e5ff)',
     tags: ['HUD', 'Control panel', 'Live feed'],
     component: MechOpsPage
+  },
+  {
+    path: '/retro-pixel',
+    title: 'PIXEL QUEST — 8-Bit Retro Adventure',
+    label: 'Retro Pixel',
+    name: 'Pixel Quest',
+    summary: '8-bit 像素风复古游戏界面，CRT 扫描线、角色选择、战斗面板和地牢地图。',
+    accent: 'linear-gradient(135deg, #33ff33, #ffb000)',
+    tags: ['8-Bit', 'CRT', 'Pixel art', 'RPG UI'],
+    component: RetroPixelPage
   }
 ];
 

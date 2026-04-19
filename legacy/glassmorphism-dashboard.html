@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WORLD POPULATION — Glassmorphism Data Dashboard</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.06);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --glass-blur: 18px;
+      --accent-blue: #4fc3f7;
+      --accent-purple: #b388ff;
+      --accent-coral: #ff8a80;
+      --accent-green: #69f0ae;
+      --accent-amber: #ffd54f;
+      --text-primary: #e0e0e0;
+      --text-secondary: rgba(255, 255, 255, 0.5);
+      --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    body {
+      background: var(--bg-gradient);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      min-height: 100vh;
+      perspective: 1200px;
+    }
+
+    /* ========== Floating Orbs ========== */
+    .orb-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      animation: float-orb 20s ease-in-out infinite;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--accent-blue), transparent 70%);
+      top: -10%; left: -10%;
+      animation-delay: 0s;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, var(--accent-purple), transparent 70%);
+      top: 40%; right: -15%;
+      animation-delay: -7s;
+    }
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--accent-coral), transparent 70%);
+      bottom: -5%; left: 30%;
+      animation-delay: -14s;
+    }
+    @keyframes float-orb {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(60px, -80px) scale(1.1); }
+      66% { transform: translate(-40px, 60px) scale(0.9); }
+    }
+
+    /* ========== Glass Card ========== */
+    .glass {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: blur(var(--glass-blur));
+      -webkit-backdrop-filter: blur(var(--glass-blur));
+      box-shadow: var(--glass-shadow);
+    }
+
+    /* ========== Parallax Scrolling ========== */
+    .parallax-wrap {
+      position: relative;
+      z-index: 1;
+    }
+    .parallax-layer {
+      will-change: transform;
+      transition: transform 0.1s ease-out;
+    }
+    .parallax-depth-1 { transform: translateZ(0px); }
+    .parallax-depth-2 { transform: translateZ(40px); }
+    .parallax-depth-3 { transform: translateZ(80px); }
+    .parallax-depth-4 { transform: translateZ(120px); }
+
+    /* ========== 3D Tilt on Cards ========== */
+    .card-3d {
+      transform-style: preserve-3d;
+      transition: transform 0.4s ease-out;
+    }
+    .card-3d:hover {
+      transform: rotateY(-5deg) rotateX(5deg) scale(1.02);
+    }
+    .card-3d .card-face {
+      position: relative;
+      transform: translateZ(20px);
+    }
+    .card-3d .card-shadow {
+      position: absolute;
+      bottom: -10px;
+      left: 10%;
+      right: 10%;
+      height: 20px;
+      background: rgba(0,0,0,0.4);
+      filter: blur(12px);
+      transform: translateZ(-10px);
+      border-radius: 50%;
+    }
+
+    /* ========== Top Nav ========== */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-bar .brand {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-bar .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+    .nav-links a {
+      color: var(--text-secondary);
+      font-size: 13px;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    /* ========== Hero Section ========== */
+    .hero-section {
+      padding: 80px 30px 60px;
+      text-align: center;
+      position: relative;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 12px;
+      color: var(--accent-blue);
+      border: 1px solid rgba(79, 195, 247, 0.3);
+      background: rgba(79, 195, 247, 0.08);
+      margin-bottom: 24px;
+      letter-spacing: 1px;
+    }
+    .hero-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero-title .highlight {
+      color: var(--accent-blue);
+      text-shadow: 0 0 30px rgba(79, 195, 247, 0.4);
+    }
+    .hero-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.8;
+    }
+
+    /* ========== Main Stats Row ========== */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .stat-card {
+      padding: 30px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card .stat-glow {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.25;
+      top: -20px;
+      right: -20px;
+    }
+    .stat-card .stat-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+    .stat-card .stat-number {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .stat-card .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      letter-spacing: 1px;
+    }
+    .stat-card .stat-change {
+      font-size: 11px;
+      margin-top: 8px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: inline-block;
+    }
+    .stat-change.up { color: var(--accent-green); background: rgba(105, 240, 174, 0.1); }
+    .stat-change.down { color: var(--accent-coral); background: rgba(255, 138, 128, 0.1); }
+
+    /* ========== Population Chart ========== */
+    .chart-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .chart-container {
+      padding: 30px;
+      position: relative;
+    }
+    .chart-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .chart-title span { color: var(--text-secondary); font-size: 13px; margin-left: 12px; }
+
+    /* Bar chart */
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      height: 240px;
+      gap: 12px;
+      padding-bottom: 40px;
+      position: relative;
+    }
+    .bar-chart .y-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 40px;
+      width: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-secondary);
+      padding-right: 8px;
+    }
+    .bar-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .bar-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      justify-content: center;
+    }
+    .bar {
+      width: 28px;
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      transition: height 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      min-height: 4px;
+    }
+    .bar::after {
+      content: attr(data-value);
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .bar-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ========== Region Cards ========== */
+    .region-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .region-section .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .region-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .region-card {
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .region-card .region-glow {
+      position: absolute;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      filter: blur(30px);
+      opacity: 0.2;
+      top: 10px;
+      left: 10px;
+    }
+    .region-card .region-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .region-card .region-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .region-card .region-pop {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .region-card .region-pct {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    /* Donut ring */
+    .donut-ring {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .donut-ring svg {
+      width: 60px;
+      height: 60px;
+      transform: rotate(-90deg);
+    }
+    .donut-ring .donut-track { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 5; }
+    .donut-ring .donut-fill { fill: none; stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease; }
+    .donut-center {
+      position: absolute;
+      font-size: 11px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Mini bar inside region card */
+    .mini-bars {
+      display: flex;
+      gap: 3px;
+      height: 24px;
+      align-items: flex-end;
+    }
+    .mini-bar {
+      width: 6px;
+      border-radius: 2px;
+      transition: height 1s ease;
+      min-height: 2px;
+    }
+
+    /* ========== Growth Projection ========== */
+    .projection-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .projection-container {
+      padding: 30px;
+    }
+    .projection-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .projection-canvas-wrap {
+      position: relative;
+      height: 200px;
+      margin-bottom: 20px;
+    }
+    .projection-canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+    }
+    .projection-legend {
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ========== Age Distribution ========== */
+    .age-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .age-container {
+      padding: 30px;
+    }
+    .age-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .age-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .age-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .age-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      width: 60px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .age-bar-bg {
+      flex: 1;
+      height: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .age-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+    }
+    .age-bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 40%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15));
+      border-radius: 10px;
+    }
+    .age-pct {
+      font-size: 11px;
+      color: var(--text-secondary);
+      width: 40px;
+      flex-shrink: 0;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* ========== Milestone Timeline ========== */
+    .timeline-section {
+      padding: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .timeline-container {
+      padding: 30px;
+    }
+    .timeline-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .timeline {
+      position: relative;
+      padding-left: 40px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: rgba(255,255,255,0.08);
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 24px;
+      padding-left: 20px;
+    }
+    .timeline-dot {
+      position: absolute;
+      left: -26px;
+      top: 4px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid;
+    }
+    .timeline-year {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ========== Footer ========== */
+    .footer {
+      text-align: center;
+      padding: 40px 30px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--glass-border);
+      margin-top: 40px;
+    }
+    .footer a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+
+    /* ========== Responsive ========== */
+    @media (max-width: 640px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .bar-chart { height: 180px; }
+      .bar { width: 16px; }
+      .bar::after { font-size: 8px; top: -18px; }
+    }
+
+    /* ========== Animations ========== */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up {
+      animation: fade-up 0.8s ease-out both;
+    }
+    .fade-up-d1 { animation-delay: 0.1s; }
+    .fade-up-d2 { animation-delay: 0.2s; }
+    .fade-up-d3 { animation-delay: 0.3s; }
+    .fade-up-d4 { animation-delay: 0.4s; }
+    .fade-up-d5 { animation-delay: 0.5s; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="orb-container">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="parallax-wrap" id="parallax-wrap">
+
+  <!-- Nav -->
+  <nav class="nav-bar glass parallax-layer parallax-depth-4">
+    <div class="brand">
+      <div class="brand-icon">🌍</div>
+      POPULATION.IO
+    </div>
+    <div class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#regions">Regions</a>
+      <a href="#growth">Growth</a>
+      <a href="#age">Demographics</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-section parallax-layer parallax-depth-1">
+    <div class="hero-badge fade-up">GLOBAL DATA 2025</div>
+    <h1 class="hero-title fade-up fade-up-d1">
+      World <span class="highlight">Population</span> Dashboard
+    </h1>
+    <p class="hero-desc fade-up fade-up-d2">
+      Real-time glassmorphism visualization of global demographic data — population growth, regional distribution, age structure, and milestone projections through 3D depth and parallax layers.
+    </p>
+  </section>
+
+  <!-- Main Stats -->
+  <section class="stats-row parallax-layer parallax-depth-2" id="overview">
+    <div class="stat-card glass card-3d fade-up fade-up-d1">
+      <div class="stat-glow" style="background:var(--accent-blue)"></div>
+      <div class="card-shadow"></div>
+      <div class="card-face">
+        <div class="stat-icon">🌍</div>
+        <div class="stat-number" style="color:var(--accent-blue)" id="total-pop">8.19B</div>
+        <div class="stat-label">TOTAL POPULATION</div>
+        <div class="stat-change up">↑ 0.9% YoY</div>
+      </div>
+    </div>
+    <div class="stat-card glass card-3d fade-up fade-up-d2">
+      <div class="stat-glow" style="background:var(--accent-coral)"></div>
+      <div class="card-shadow"></div>
+      <div class="card-face">
+        <div class="stat-icon">📈</div>
+        <div class="stat-number" style="color:var(--accent-coral)">+74M</div>
+        <div class="stat-label">ANNUAL GROWTH</div>
+        <div class="stat-change up">↑ 200K/day</div>
+      </div>
+    </div>
+    <div class="stat-card glass card-3d fade-up fade-up-d3">
+      <div class="stat-glow" style="background:var(--accent-green)"></div>
+      <div class="card-shadow"></div>
+      <div class="card-face">
+        <div class="stat-icon">👶</div>
+        <div class="stat-number" style="color:var(--accent-green)">2.3</div>
+        <div class="stat-label">GLOBAL FERTILITY RATE</div>
+        <div class="stat-change down">↓ from 5.0 (1960)</div>
+      </div>
+    </div>
+    <div class="stat-card glass card-3d fade-up fade-up-d4">
+      <div class="stat-glow" style="background:var(--accent-purple)"></div>
+      <div class="card-shadow"></div>
+      <div class="card-face">
+        <div class="stat-icon">🕯️</div>
+        <div class="stat-number" style="color:var(--accent-purple)">73.4</div>
+        <div class="stat-label">AVG LIFE EXPECTANCY</div>
+        <div class="stat-change up">↑ +6.2 yrs since 2000</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Population Bar Chart -->
+  <section class="chart-section parallax-layer parallax-depth-1">
+    <div class="chart-container glass">
+      <div class="chart-title">Population by Decade <span>(1950 – 2025, in billions)</span></div>
+      <div class="bar-chart" id="bar-chart">
+        <div class="y-axis">
+          <span>8B</span><span>6B</span><span>4B</span><span>2B</span><span>0</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Region Cards -->
+  <section class="region-section parallax-layer parallax-depth-2" id="regions">
+    <div class="section-title">Regional Distribution</div>
+    <div class="region-grid">
+      <div class="region-card glass card-3d fade-up">
+        <div class="region-glow" style="background:var(--accent-coral)"></div>
+        <div class="card-shadow"></div>
+        <div class="card-face">
+          <div class="region-header">
+            <div>
+              <div class="region-name" style="color:var(--accent-coral)">Asia</div>
+              <div class="region-pop" style="color:var(--accent-coral)">4.78B</div>
+            </div>
+            <div class="donut-ring">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-track" cx="18" cy="18" r="14"/>
+                <circle class="donut-fill" cx="18" cy="18" r="14" stroke="var(--accent-coral)" stroke-dasharray="59 41" stroke-dashoffset="0"/>
+              </svg>
+              <span class="donut-center" style="color:var(--accent-coral)">59%</span>
+            </div>
+          </div>
+          <div class="region-pct">59.4% of world population</div>
+          <div class="mini-bars" id="mini-bars-asia"></div>
+        </div>
+      </div>
+
+      <div class="region-card glass card-3d fade-up fade-up-d1">
+        <div class="region-glow" style="background:var(--accent-amber)"></div>
+        <div class="card-shadow"></div>
+        <div class="card-face">
+          <div class="region-header">
+            <div>
+              <div class="region-name" style="color:var(--accent-amber)">Africa</div>
+              <div class="region-pop" style="color:var(--accent-amber)">1.46B</div>
+            </div>
+            <div class="donut-ring">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-track" cx="18" cy="18" r="14"/>
+                <circle class="donut-fill" cx="18" cy="18" r="14" stroke="var(--accent-amber)" stroke-dasharray="18 82" stroke-dashoffset="0"/>
+              </svg>
+              <span class="donut-center" style="color:var(--accent-amber)">18%</span>
+            </div>
+          </div>
+          <div class="region-pct">18.1% — fastest growing region</div>
+          <div class="mini-bars" id="mini-bars-africa"></div>
+        </div>
+      </div>
+
+      <div class="region-card glass card-3d fade-up fade-up-d2">
+        <div class="region-glow" style="background:var(--accent-blue)"></div>
+        <div class="card-shadow"></div>
+        <div class="card-face">
+          <div class="region-header">
+            <div>
+              <div class="region-name" style="color:var(--accent-blue)">Europe</div>
+              <div class="region-pop" style="color:var(--accent-blue)">0.74B</div>
+            </div>
+            <div class="donut-ring">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-track" cx="18" cy="18" r="14"/>
+                <circle class="donut-fill" cx="18" cy="18" r="14" stroke="var(--accent-blue)" stroke-dasharray="9.2 90.8" stroke-dashoffset="0"/>
+              </svg>
+              <span class="donut-center" style="color:var(--accent-blue)">9%</span>
+            </div>
+          </div>
+          <div class="region-pct">9.2% — declining growth rate</div>
+          <div class="mini-bars" id="mini-bars-europe"></div>
+        </div>
+      </div>
+
+      <div class="region-card glass card-3d fade-up fade-up-d3">
+        <div class="region-glow" style="background:var(--accent-green)"></div>
+        <div class="card-shadow"></div>
+        <div class="card-face">
+          <div class="region-header">
+            <div>
+              <div class="region-name" style="color:var(--accent-green)">Americas</div>
+              <div class="region-pop" style="color:var(--accent-green)">1.04B</div>
+            </div>
+            <div class="donut-ring">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-track" cx="18" cy="18" r="14"/>
+                <circle class="donut-fill" cx="18" cy="18" r="14" stroke="var(--accent-green)" stroke-dasharray="12.8 87.2" stroke-dashoffset="0"/>
+              </svg>
+              <span class="donut-center" style="color:var(--accent-green)">13%</span>
+            </div>
+          </div>
+          <div class="region-pct">12.8% — steady growth</div>
+          <div class="mini-bars" id="mini-bars-americas"></div>
+        </div>
+      </div>
+
+      <div class="region-card glass card-3d fade-up fade-up-d4">
+        <div class="region-glow" style="background:var(--accent-purple)"></div>
+        <div class="card-shadow"></div>
+        <div class="card-face">
+          <div class="region-header">
+            <div>
+              <div class="region-name" style="color:var(--accent-purple)">Oceania</div>
+              <div class="region-pop" style="color:var(--accent-purple)">0.046B</div>
+            </div>
+            <div class="donut-ring">
+              <svg viewBox="0 0 36 36">
+                <circle class="donut-track" cx="18" cy="18" r="14"/>
+                <circle class="donut-fill" cx="18" cy="18" r="14" stroke="var(--accent-purple)" stroke-dasharray="0.6 99.4" stroke-dashoffset="0"/>
+              </svg>
+              <span class="donut-center" style="color:var(--accent-purple)">0.6%</span>
+            </div>
+          </div>
+          <div class="region-pct">0.6% — 46M across Pacific</div>
+          <div class="mini-bars" id="mini-bars-oceania"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Growth Projection -->
+  <section class="projection-section parallax-layer parallax-depth-3" id="growth">
+    <div class="projection-container glass">
+      <div class="projection-title">Population Growth Projection <span>(2025 – 2100)</span></div>
+      <div class="projection-canvas-wrap">
+        <canvas id="projection-canvas"></canvas>
+      </div>
+      <div class="projection-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent-blue)"></div> Medium variant</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent-amber)"></div> High variant</div>
+        <div class="legend-item"><div class="legend-dot" style="background:var(--accent-coral)"></div> Low variant</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Age Distribution -->
+  <section class="age-section parallax-layer parallax-depth-2" id="age">
+    <div class="age-container glass">
+      <div class="age-title">Global Age Distribution <span>(2025)</span></div>
+      <div class="age-bars" id="age-bars"></div>
+    </div>
+  </section>
+
+  <!-- Milestone Timeline -->
+  <section class="timeline-section parallax-layer parallax-depth-1">
+    <div class="timeline-container glass">
+      <div class="timeline-title">Population Milestones</div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-amber);background:rgba(255,213,79,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-amber)">1804</div>
+          <div class="timeline-desc">World population reaches 1 billion for the first time.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-blue);background:rgba(79,195,247,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-blue)">1927</div>
+          <div class="timeline-desc">2 billion reached — it took 123 years to add another billion.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-green);background:rgba(105,240,174,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-green)">1960</div>
+          <div class="timeline-desc">3 billion — only 33 years after the 2nd billion.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-coral);background:rgba(255,138,128,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-coral)">1975</div>
+          <div class="timeline-desc">4 billion — just 15 years later, growth accelerating.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-purple);background:rgba(179,136,255,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-purple)">1987</div>
+          <div class="timeline-desc">5 billion — 12 years to add another billion.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-blue);background:rgba(79,195,247,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-blue)">2022</div>
+          <div class="timeline-desc">8 billion — growth rate slowing, fertility declining globally.</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot" style="border-color:var(--accent-amber);background:rgba(255,213,79,0.2)"></div>
+          <div class="timeline-year" style="color:var(--accent-amber)">~2086</div>
+          <div class="timeline-desc">Projected peak of ~10.4 billion before plateau or decline.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="footer parallax-layer parallax-depth-1">
+    <p>POPULATION.IO — Glassmorphism Dashboard Concept</p>
+    <p style="margin-top:8px;"><a href="/">BACK TO INDEX</a></p>
+  </div>
+
+</div>
+
+<script>
+// ========== Parallax Scrolling ==========
+(function() {
+  var wrap = document.getElementById('parallax-wrap');
+  var layers = document.querySelectorAll('.parallax-layer');
+
+  function updateParallax() {
+    var scrollY = window.scrollY;
+    layers.forEach(function(layer) {
+      var depth = parseFloat(layer.className.match(/parallax-depth-(\d+)/)?.[1] || 0);
+      var move = scrollY * (depth / 120) * -0.5;
+      layer.style.transform = 'translateY(' + move + 'px) translateZ(' + depth + 'px)';
+    });
+  }
+  window.addEventListener('scroll', updateParallax, { passive: true });
+  updateParallax();
+})();
+
+// ========== 3D Card Tilt on Hover ==========
+(function() {
+  document.querySelectorAll('.card-3d').forEach(function(card) {
+    card.addEventListener('mousemove', function(e) {
+      var rect = card.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var centerX = rect.width / 2;
+      var centerY = rect.height / 2;
+      var rotateY = ((x - centerX) / centerX) * -8;
+      var rotateX = ((y - centerY) / centerY) * 8;
+      card.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) scale(1.03)';
+    });
+    card.addEventListener('mouseleave', function() {
+      card.style.transform = '';
+    });
+  });
+})();
+
+// ========== Bar Chart ==========
+(function() {
+  var data = [
+    { year: '1950', value: 2.5 },
+    { year: '1960', value: 3.0 },
+    { year: '1970', value: 3.7 },
+    { year: '1980', value: 4.4 },
+    { year: '1990', value: 5.3 },
+    { year: '2000', value: 6.1 },
+    { year: '2010', value: 6.9 },
+    { year: '2020', value: 7.8 },
+    { year: '2025', value: 8.2 }
+  ];
+  var chart = document.getElementById('bar-chart');
+  var colors = [
+    'rgba(255,213,79,0.6)',
+    'rgba(79,195,247,0.5)',
+    'rgba(105,240,174,0.5)',
+    'rgba(255,138,128,0.5)',
+    'rgba(179,136,255,0.5)',
+    'rgba(79,195,247,0.6)',
+    'rgba(255,138,128,0.6)',
+    'rgba(179,136,255,0.6)',
+    'rgba(79,195,247,0.8)'
+  ];
+  data.forEach(function(d, i) {
+    var group = document.createElement('div');
+    group.className = 'bar-group';
+    var wrapper = document.createElement('div');
+    wrapper.className = 'bar-wrapper';
+    var bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.dataset.value = d.value + 'B';
+    bar.style.background = colors[i];
+    bar.style.height = '0%';
+    wrapper.appendChild(bar);
+    var label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = d.year;
+    group.appendChild(wrapper);
+    group.appendChild(label);
+    chart.appendChild(group);
+    // Animate
+    setTimeout(function() {
+      bar.style.height = (d.value / 8.5 * 100) + '%';
+    }, 300 + i * 150);
+  });
+})();
+
+// ========== Mini Bars ==========
+(function() {
+  var miniData = {
+    'mini-bars-asia':   [70,75,80,85,90,92,95,98,100],
+    'mini-bars-africa':  [30,35,40,50,60,70,80,90,100],
+    'mini-bars-europe':  [100,95,90,85,80,78,76,74,73],
+    'mini-bars-americas':[60,65,70,75,80,85,88,90,92],
+    'mini-bars-oceania': [40,45,50,55,60,65,70,75,80]
+  };
+  var miniColors = {
+    'mini-bars-asia':   'var(--accent-coral)',
+    'mini-bars-africa': 'var(--accent-amber)',
+    'mini-bars-europe': 'var(--accent-blue)',
+    'mini-bars-americas':'var(--accent-green)',
+    'mini-bars-oceania': 'var(--accent-purple)'
+  };
+  Object.keys(miniData).forEach(function(id) {
+    var container = document.getElementById(id);
+    miniData[id].forEach(function(v, i) {
+      var bar = document.createElement('div');
+      bar.className = 'mini-bar';
+      bar.style.background = miniColors[id];
+      bar.style.opacity = 0.3 + (i / miniData[id].length) * 0.7;
+      bar.style.height = '0px';
+      container.appendChild(bar);
+      setTimeout(function() {
+        bar.style.height = (v / 100 * 24) + 'px';
+      }, 500 + i * 80);
+    });
+  });
+})();
+
+// ========== Growth Projection Canvas ==========
+(function() {
+  var canvas = document.getElementById('projection-canvas');
+  var ctx = canvas.getContext('2d');
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = canvas.offsetHeight * dpr;
+  ctx.scale(dpr, dpr);
+  var W = canvas.offsetWidth;
+  var H = canvas.offsetHeight;
+
+  var projections = {
+    high:   [8.2,8.5,8.8,9.1,9.5,9.8,10.1,10.3,10.5],
+    medium: [8.2,8.4,8.6,8.8,9.0,9.2,9.4,9.5,9.7],
+    low:    [8.2,8.3,8.3,8.2,8.1,7.9,7.7,7.4,7.0]
+  };
+  var years = ['2025','2030','2040','2050','2060','2070','2080','2090','2100'];
+
+  function drawLine(data, color, lineWidth) {
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth || 2;
+    ctx.lineJoin = 'round';
+    data.forEach(function(val, i) {
+      var x = 50 + (i / (data.length - 1)) * (W - 80);
+      var y = H - 30 - ((val - 7) / (10.5 - 7)) * (H - 60);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    // Glow
+    ctx.save();
+    ctx.globalAlpha = 0.15;
+    ctx.lineWidth = 8;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawGrid() {
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    for (var v = 7; v <= 10.5; v += 0.5) {
+      var y = H - 30 - ((v - 7) / 3.5) * (H - 60);
+      ctx.beginPath();
+      ctx.moveTo(50, y);
+      ctx.lineTo(W - 30, y);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '10px Inter';
+      ctx.fillText(v + 'B', 10, y + 4);
+    }
+    years.forEach(function(yr, i) {
+      var x = 50 + (i / (years.length - 1)) * (W - 80);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '10px Inter';
+      ctx.fillText(yr, x - 12, H - 12);
+    });
+  }
+
+  drawGrid();
+  drawLine(projections.high, '#ffd54f', 2);
+  drawLine(projections.medium, '#4fc3f7', 2.5);
+  drawLine(projections.low, '#ff8a80', 1.5);
+
+  // Dots on medium
+  projections.medium.forEach(function(val, i) {
+    var x = 50 + (i / (projections.medium.length - 1)) * (W - 80);
+    var y = H - 30 - ((val - 7) / 3.5) * (H - 60);
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.fill();
+  });
+})();
+
+// ========== Age Distribution Bars ==========
+(function() {
+  var ageData = [
+    { label: '0-14',  pct: 25.4, color: 'var(--accent-blue)' },
+    { label: '15-24', pct: 15.2, color: 'var(--accent-green)' },
+    { label: '25-54', pct: 40.8, color: 'var(--accent-purple)' },
+    { label: '55-64', pct: 8.6,  color: 'var(--accent-amber)' },
+    { label: '65+',   pct: 10.0, color: 'var(--accent-coral)' }
+  ];
+  var container = document.getElementById('age-bars');
+  ageData.forEach(function(d, i) {
+    var row = document.createElement('div');
+    row.className = 'age-row';
+    row.innerHTML =
+      '<div class="age-label">' + d.label + '</div>' +
+      '<div class="age-bar-bg"><div class="age-bar-fill" style="background:' + d.color + ';width:0%"></div></div>' +
+      '<div class="age-pct">' + d.pct + '%</div>';
+    container.appendChild(row);
+    setTimeout(function() {
+      row.querySelector('.age-bar-fill').style.width = d.pct + '%';
+    }, 400 + i * 150);
+  });
+})();
+</script>
+
+</body>
+</html>

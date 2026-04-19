@@ -7,6 +7,7 @@ const SciFiWebsitePage = lazy(() => import('../pages/SciFiWebsitePage'));
 const Tesla3dPage = lazy(() => import('../pages/Tesla3dPage'));
 const MechOpsPage = lazy(() => import('../pages/MechOpsPage'));
 const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
+const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
 
 export const routeConfigs = [
   {
@@ -14,7 +15,7 @@ export const routeConfigs = [
     title: 'CC Design Demo',
     label: 'Overview',
     name: 'CC Design Demo',
-    summary: '七个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
+    summary: '八个独立视觉实验与一个手绘式 LLM 讲解 deck 的统一入口。',
     accent: 'linear-gradient(135deg, #49d8ff, #ff5f87)',
     tags: ['React shell', 'Multi-route', 'Vercel-ready'],
     component: HomePageFallback
@@ -88,6 +89,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #33ff33, #ffb000)',
     tags: ['8-Bit', 'CRT', 'Pixel art', 'RPG UI'],
     component: RetroPixelPage
+  },
+  {
+    path: '/glassmorphism-dashboard',
+    title: 'WORLD POPULATION — Glassmorphism Data Dashboard',
+    label: 'Glass Dashboard',
+    name: 'Glassmorphism Dashboard',
+    summary: '毛玻璃人口数据看板，3D 卡片倾斜、滚动差速层和动态图表可视化。',
+    accent: 'linear-gradient(135deg, #4fc3f7, #b388ff)',
+    tags: ['Glassmorphism', '3D tilt', 'Parallax', 'Data viz'],
+    component: GlassmorphismDashboardPage
   }
 ];
 

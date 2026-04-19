@@ -16,10 +16,10 @@ export default function HomePage() {
         <div className="hero-copy">
           <div className="eyebrow">Multi-page Vercel Preview</div>
           <h1>
-            Seven demos.<span className="accent">One entrypoint.</span>
+            Eight demos.<span className="accent">One entrypoint.</span>
           </h1>
           <p>
-            这个站点把七个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
+            这个站点把八个独立的视觉实验整理到一个静态多页面入口下。根路径提供导航页，所有作品保留独立 URL，
             适合直接发 Vercel Preview 链接给别人查看。
           </p>
           <div className="hero-actions">
@@ -34,7 +34,7 @@ export default function HomePage() {
         <aside className="hero-meta">
           <div className="meta-card">
             <span className="meta-label">Collection</span>
-            <span className="meta-value">7 static design demos</span>
+            <span className="meta-value">8 static design demos</span>
             <div className="meta-note">保持原始 HTML 页面不变，通过静态路由暴露稳定访问路径。</div>
           </div>
           <div className="meta-card">
@@ -46,7 +46,7 @@ export default function HomePage() {
             <span className="meta-label">Routes</span>
             <span className="meta-value">
               /, /llm-sketch-ppt, /enterprise-hero, /sci-fi-website, /tesla-3d-website, /aether,
-              /mech-ops, /retro-pixel
+              /mech-ops, /retro-pixel, /glassmorphism-dashboard
             </span>
           </div>
         </aside>
@@ -148,6 +148,20 @@ export default function HomePage() {
           <div className="card-footer">
             <span>Path</span>
             <strong>/retro-pixel</strong>
+          </div>
+        </a>
+
+        <a className="card scifi" href="/glassmorphism-dashboard">
+          <span className="card-tag">Data / Glass</span>
+          <h2>
+            POPULATION
+            <br />
+            Glass Dashboard
+          </h2>
+          <p>毛玻璃人口数据看板，3D 卡片倾斜交互、滚动差速分层和动态图表可视化。</p>
+          <div className="card-footer">
+            <span>Path</span>
+            <strong>/glassmorphism-dashboard</strong>
           </div>
         </a>
       </main>

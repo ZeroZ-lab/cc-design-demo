@@ -58,7 +58,6 @@ a {
   mask-image: radial-gradient(ellipse at 50% 30%, black 50%, transparent 85%);
 }
 
-.index-header,
 .index-main,
 .index-footer {
   width: min(1200px, calc(100vw - 48px));
@@ -72,7 +71,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 0;
+  padding: 14px max(24px, calc(50vw - 600px));
   backdrop-filter: blur(24px) saturate(1.2);
   background: rgba(4, 7, 15, 0.6);
   border-bottom: 1px solid rgba(68, 136, 255, 0.06);
@@ -424,7 +423,6 @@ a {
 }
 
 @media (max-width: 640px) {
-  .index-header,
   .index-main,
   .index-footer { width: calc(100vw - 24px); }
   .index-grid { grid-template-columns: 1fr; }
@@ -1435,8 +1433,6 @@ a {
 .security-main {
   position: relative;
   z-index: 1;
-  width: min(1480px, calc(100vw - 48px));
-  margin: 0 auto;
 }
 
 .security-topbar {
@@ -1444,7 +1440,7 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px 0 8px;
+  padding: 18px max(24px, calc(50vw - 740px)) 8px;
 }
 
 .security-brand {

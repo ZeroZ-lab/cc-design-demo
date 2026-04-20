@@ -433,49 +433,35 @@ export default function SecurityDigitalTwinPage() {
       </header>
 
       <main className="security-main">
-        <section className="security-hero">
-          <div className="security-hero__copy">
-            <span className="security-kicker">三维空间感知 / Security Operations Twin</span>
-            <h1>让整栋楼的安防状态，在一张透明剖面里被看见。</h1>
-            <p>
-              以楼体为主坐标，把门禁、摄像头、巡检与环境告警直接挂在空间上。值守人员无需在多个系统之间切换，就能定位风险、确认影响范围并发起联动。
-            </p>
-
-            <div className="security-metrics">
-              <article>
-                <strong>{totalAlerts}</strong>
-                <span>今日告警</span>
-              </article>
-              <article>
-                <strong>{totalCameras}</strong>
-                <span>在线摄像头</span>
-              </article>
-              <article>
-                <strong>{avgOccupancy}%</strong>
-                <span>平均占用率</span>
-              </article>
-            </div>
+        <section className="security-overview">
+          <div className="security-overview__title">
+            <span className="security-kicker">楼宇安防监控大屏 / Security Operations Center</span>
+            <h1>建筑居中，态势环绕。</h1>
+            <p>把楼层、告警、巡检、设备健康和重点区域围绕在建筑四周，值守视线始终锁定主楼。</p>
           </div>
 
-          <div className="security-hero__stage">
-            <SecurityTwinScene
-              floors={buildingFloors}
-              activeFloorId={activeFloor.id}
-              onHoverFloor={setHoveredFloorId}
-              onPinFloor={setPinnedFloorId}
-            />
-
-            <div className="security-stage__overlay security-stage__overlay--left">
-              <span>透明立面</span>
-              <strong>楼层骨架可见</strong>
-            </div>
-            <div className="security-stage__overlay security-stage__overlay--right">
-              <span>当前焦点</span>
-              <strong>{activeFloor.label} / {activeFloor.zone}</strong>
-            </div>
+          <div className="security-metrics">
+            <article>
+              <strong>{totalAlerts}</strong>
+              <span>今日告警</span>
+            </article>
+            <article>
+              <strong>{highAlerts}</strong>
+              <span>高优事件</span>
+            </article>
+            <article>
+              <strong>{totalCameras}</strong>
+              <span>在线摄像头</span>
+            </article>
+            <article>
+              <strong>{avgOccupancy}%</strong>
+              <span>平均占用率</span>
+            </article>
           </div>
+        </section>
 
-          <aside className="security-sidebar">
+        <section className="security-dashboard">
+          <div className="security-sidebar security-sidebar--left">
             <section className="security-panel security-panel--highlight">
               <span className="security-panel__eyebrow">楼层态势</span>
               <h2>{activeFloor.label} {activeFloor.zone}</h2>
@@ -503,6 +489,44 @@ export default function SecurityDigitalTwinPage() {
 
             <section className="security-panel">
               <div className="security-panel__head">
+                <span className="security-panel__eyebrow">重点区域</span>
+                <strong>4 个区域</strong>
+              </div>
+              <div className="security-zones">
+                {zones.map((zone) => (
+                  <article key={zone.name} className={`security-zone security-zone--${zone.tone}`}>
+                    <div>
+                      <strong>{zone.name}</strong>
+                      <span>{zone.detail}</span>
+                    </div>
+                    <em>{zone.state}</em>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <div className="security-hero__stage">
+            <SecurityTwinScene
+              floors={buildingFloors}
+              activeFloorId={activeFloor.id}
+              onHoverFloor={setHoveredFloorId}
+              onPinFloor={setPinnedFloorId}
+            />
+
+            <div className="security-stage__overlay security-stage__overlay--left">
+              <span>建筑主题</span>
+              <strong>透明立面 / 楼层骨架</strong>
+            </div>
+            <div className="security-stage__overlay security-stage__overlay--right">
+              <span>当前焦点</span>
+              <strong>{activeFloor.label} / {activeFloor.zone}</strong>
+            </div>
+          </div>
+
+          <aside className="security-sidebar security-sidebar--right">
+            <section className="security-panel">
+              <div className="security-panel__head">
                 <span className="security-panel__eyebrow">实时告警</span>
                 <strong>{highAlerts} 条高优</strong>
               </div>
@@ -525,18 +549,26 @@ export default function SecurityDigitalTwinPage() {
 
             <section className="security-panel">
               <div className="security-panel__head">
-                <span className="security-panel__eyebrow">重点区域</span>
-                <strong>4 个区域</strong>
+                <span className="security-panel__eyebrow">楼层切换</span>
+                <strong>{buildingFloors.length} 层</strong>
               </div>
-              <div className="security-zones">
-                {zones.map((zone) => (
-                  <article key={zone.name} className={`security-zone security-zone--${zone.tone}`}>
-                    <div>
-                      <strong>{zone.name}</strong>
-                      <span>{zone.detail}</span>
-                    </div>
-                    <em>{zone.state}</em>
-                  </article>
+
+              <div className="security-floorband__list security-floorband__list--panel">
+                {buildingFloors.map((floor) => (
+                  <button
+                    key={floor.id}
+                    type="button"
+                    className={`security-floorpill ${floor.id === activeFloor.id ? 'is-active' : ''}`}
+                    onMouseEnter={() => setHoveredFloorId(floor.id)}
+                    onMouseLeave={() => setHoveredFloorId(null)}
+                    onFocus={() => setHoveredFloorId(floor.id)}
+                    onBlur={() => setHoveredFloorId(null)}
+                    onClick={() => setPinnedFloorId(floor.id)}
+                  >
+                    <span>{floor.label}</span>
+                    <strong>{floor.zone}</strong>
+                    <em>{riskText(floor.riskLevel)}</em>
+                  </button>
                 ))}
               </div>
             </section>
@@ -545,27 +577,8 @@ export default function SecurityDigitalTwinPage() {
 
         <section className="security-floorband" aria-label="楼层切片">
           <div className="security-floorband__header">
-            <span>楼层剖面</span>
-            <strong>拖拽楼体或点击胶囊切换楼层</strong>
-          </div>
-
-          <div className="security-floorband__list">
-            {buildingFloors.map((floor) => (
-              <button
-                key={floor.id}
-                type="button"
-                className={`security-floorpill ${floor.id === activeFloor.id ? 'is-active' : ''}`}
-                onMouseEnter={() => setHoveredFloorId(floor.id)}
-                onMouseLeave={() => setHoveredFloorId(null)}
-                onFocus={() => setHoveredFloorId(floor.id)}
-                onBlur={() => setHoveredFloorId(null)}
-                onClick={() => setPinnedFloorId(floor.id)}
-              >
-                <span>{floor.label}</span>
-                <strong>{floor.zone}</strong>
-                <em>{riskText(floor.riskLevel)}</em>
-              </button>
-            ))}
+            <span>底部联动区</span>
+            <strong>事件联动、设备健康与巡检策略围绕主楼展开</strong>
           </div>
         </section>
 

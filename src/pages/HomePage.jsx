@@ -19,7 +19,7 @@ const toneByPath = {
   '/security-digital-twin': 'sentinel',
 };
 
-/* ===== Hero animated canvas ===== */
+/* ===== Hero animated canvas — soft aurora blobs ===== */
 function HeroCanvas() {
   const canvasRef = useRef(null);
 
@@ -28,21 +28,11 @@ function HeroCanvas() {
     const ctx = canvas.getContext('2d');
     let frame, time = 0;
 
-    const orbs = [
-      { x: 0.18, y: 0.3, r: 0.5, speed: 0.4, color: [0, 210, 255] },
-      { x: 0.72, y: 0.45, r: 0.55, speed: 0.3, color: [100, 50, 255] },
-      { x: 0.45, y: 0.6, r: 0.45, speed: 0.35, color: [0, 240, 180] },
-      { x: 0.85, y: 0.25, r: 0.3, speed: 0.5, color: [140, 100, 255] },
+    const blobs = [
+      { x: 0.25, y: 0.38, r: 0.58, speed: 0.22, color: [20, 100, 240], phase: 0 },
+      { x: 0.72, y: 0.42, r: 0.50, speed: 0.18, color: [90, 55, 220], phase: 2.1 },
+      { x: 0.48, y: 0.58, r: 0.42, speed: 0.28, color: [0, 185, 160], phase: 4.3 },
     ];
-
-    const dots = Array.from({ length: 80 }, () => ({
-      x: Math.random(), y: Math.random(),
-      vx: (Math.random() - 0.5) * 0.0006,
-      vy: (Math.random() - 0.5) * 0.0004,
-      r: Math.random() * 1.8 + 0.4,
-      a: Math.random() * 0.6 + 0.1,
-      phase: Math.random() * Math.PI * 2,
-    }));
 
     let cw = 0, ch = 0;
 
@@ -58,54 +48,21 @@ function HeroCanvas() {
     window.addEventListener('resize', resize);
 
     const draw = () => {
-      time += 0.008;
+      time += 0.004;
       ctx.clearRect(0, 0, cw, ch);
 
-      // Animated orbs with sinusoidal motion
-      for (let i = 0; i < orbs.length; i++) {
-        const orb = orbs[i];
-        const cx = (orb.x + Math.sin(time * orb.speed + i * 1.8) * 0.12) * cw;
-        const cy = (orb.y + Math.cos(time * orb.speed * 0.7 + i * 2.3) * 0.1) * ch;
-        const rr = (orb.r + Math.sin(time * 0.5 + i) * 0.05) * Math.max(cw, ch);
+      for (const blob of blobs) {
+        const cx = (blob.x + Math.sin(time * blob.speed + blob.phase) * 0.13) * cw;
+        const cy = (blob.y + Math.cos(time * blob.speed * 0.7 + blob.phase) * 0.09) * ch;
+        const rr = blob.r * Math.max(cw, ch);
+        const [r, g, b] = blob.color;
         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, rr);
-        const [r, g, b] = orb.color;
-        grad.addColorStop(0, `rgba(${r},${g},${b},0.35)`);
-        grad.addColorStop(0.25, `rgba(${r},${g},${b},0.18)`);
-        grad.addColorStop(0.5, `rgba(${r},${g},${b},0.06)`);
+        grad.addColorStop(0, `rgba(${r},${g},${b},0.30)`);
+        grad.addColorStop(0.20, `rgba(${r},${g},${b},0.15)`);
+        grad.addColorStop(0.50, `rgba(${r},${g},${b},0.04)`);
         grad.addColorStop(1, 'transparent');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, cw, ch);
-      }
-
-      // Particles with pulsing opacity
-      for (const d of dots) {
-        d.x += d.vx; d.y += d.vy;
-        if (d.x < 0 || d.x > 1) d.vx *= -1;
-        if (d.y < 0 || d.y > 1) d.vy *= -1;
-        const pulse = 0.5 + 0.5 * Math.sin(time * 2 + d.phase);
-        const alpha = d.a * (0.4 + pulse * 0.6);
-        ctx.beginPath();
-        ctx.arc(d.x * cw, d.y * ch, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(120,210,255,${alpha})`;
-        ctx.fill();
-      }
-
-      // Particle connections
-      ctx.lineWidth = 0.6;
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const dx = (dots[i].x - dots[j].x) * cw;
-          const dy = (dots[i].y - dots[j].y) * ch;
-          const dist = dx * dx + dy * dy;
-          if (dist < 10000) {
-            const alpha = (1 - dist / 10000) * 0.12;
-            ctx.beginPath();
-            ctx.moveTo(dots[i].x * cw, dots[i].y * ch);
-            ctx.lineTo(dots[j].x * cw, dots[j].y * ch);
-            ctx.strokeStyle = `rgba(100,200,255,${alpha})`;
-            ctx.stroke();
-          }
-        }
       }
 
       frame = requestAnimationFrame(draw);

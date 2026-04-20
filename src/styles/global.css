@@ -135,7 +135,7 @@ a {
 
 .index-hero {
   position: relative;
-  min-height: 420px;
+  min-height: 480px;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -155,7 +155,9 @@ a {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(4,7,15,0.1) 0%, rgba(4,7,15,0.6) 70%, #04070f 100%);
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, transparent 30%, rgba(4,7,15,0.5) 70%),
+    linear-gradient(180deg, rgba(4,7,15,0.05) 0%, rgba(4,7,15,0.55) 65%, #04070f 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -163,7 +165,7 @@ a {
 .index-hero-content {
   position: relative;
   z-index: 2;
-  padding: 80px 0 64px;
+  padding: 88px 0 72px;
   max-width: 680px;
 }
 

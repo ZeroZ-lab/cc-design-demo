@@ -433,35 +433,53 @@ export default function SecurityDigitalTwinPage() {
       </header>
 
       <main className="security-main">
-        <section className="security-overview">
-          <div className="security-overview__title">
-            <span className="security-kicker">楼宇安防监控大屏 / Security Operations Center</span>
-            <h1>建筑居中，态势环绕。</h1>
-            <p>把楼层、告警、巡检、设备健康和重点区域围绕在建筑四周，值守视线始终锁定主楼。</p>
+        <section className="security-canvas-shell">
+          <div className="security-hero__stage security-hero__stage--fullscreen">
+            <SecurityTwinScene
+              floors={buildingFloors}
+              activeFloorId={activeFloor.id}
+              onHoverFloor={setHoveredFloorId}
+              onPinFloor={setPinnedFloorId}
+            />
+
+            <div className="security-stage__overlay security-stage__overlay--left">
+              <span>建筑主题</span>
+              <strong>透明立面 / 楼层骨架</strong>
+            </div>
+            <div className="security-stage__overlay security-stage__overlay--right">
+              <span>当前焦点</span>
+              <strong>{activeFloor.label} / {activeFloor.zone}</strong>
+            </div>
           </div>
 
-          <div className="security-metrics">
-            <article>
-              <strong>{totalAlerts}</strong>
-              <span>今日告警</span>
-            </article>
-            <article>
-              <strong>{highAlerts}</strong>
-              <span>高优事件</span>
-            </article>
-            <article>
-              <strong>{totalCameras}</strong>
-              <span>在线摄像头</span>
-            </article>
-            <article>
-              <strong>{avgOccupancy}%</strong>
-              <span>平均占用率</span>
-            </article>
-          </div>
-        </section>
+          <section className="security-overlay security-overlay--top">
+            <div className="security-overview__title security-floating-card">
+              <span className="security-kicker">楼宇安防监控大屏 / Security Operations Center</span>
+              <h1>建筑居中，态势环绕。</h1>
+              <p>页面整体是一张主画面，所有告警、楼层、巡检与重点区域都作为浮层叠加在建筑主题之上。</p>
+            </div>
 
-        <section className="security-dashboard">
-          <div className="security-sidebar security-sidebar--left">
+            <div className="security-metrics security-metrics--floating">
+              <article className="security-floating-card">
+                <strong>{totalAlerts}</strong>
+                <span>今日告警</span>
+              </article>
+              <article className="security-floating-card">
+                <strong>{highAlerts}</strong>
+                <span>高优事件</span>
+              </article>
+              <article className="security-floating-card">
+                <strong>{totalCameras}</strong>
+                <span>在线摄像头</span>
+              </article>
+              <article className="security-floating-card">
+                <strong>{avgOccupancy}%</strong>
+                <span>平均占用率</span>
+              </article>
+            </div>
+          </section>
+
+          <section className="security-overlay security-overlay--left">
             <section className="security-panel security-panel--highlight">
               <span className="security-panel__eyebrow">楼层态势</span>
               <h2>{activeFloor.label} {activeFloor.zone}</h2>
@@ -504,27 +522,9 @@ export default function SecurityDigitalTwinPage() {
                 ))}
               </div>
             </section>
-          </div>
+          </section>
 
-          <div className="security-hero__stage">
-            <SecurityTwinScene
-              floors={buildingFloors}
-              activeFloorId={activeFloor.id}
-              onHoverFloor={setHoveredFloorId}
-              onPinFloor={setPinnedFloorId}
-            />
-
-            <div className="security-stage__overlay security-stage__overlay--left">
-              <span>建筑主题</span>
-              <strong>透明立面 / 楼层骨架</strong>
-            </div>
-            <div className="security-stage__overlay security-stage__overlay--right">
-              <span>当前焦点</span>
-              <strong>{activeFloor.label} / {activeFloor.zone}</strong>
-            </div>
-          </div>
-
-          <aside className="security-sidebar security-sidebar--right">
+          <section className="security-overlay security-overlay--right">
             <section className="security-panel">
               <div className="security-panel__head">
                 <span className="security-panel__eyebrow">实时告警</span>
@@ -572,24 +572,26 @@ export default function SecurityDigitalTwinPage() {
                 ))}
               </div>
             </section>
-          </aside>
-        </section>
+          </section>
 
-        <section className="security-floorband" aria-label="楼层切片">
-          <div className="security-floorband__header">
-            <span>底部联动区</span>
-            <strong>事件联动、设备健康与巡检策略围绕主楼展开</strong>
-          </div>
-        </section>
+          <section className="security-overlay security-overlay--bottom" aria-label="底部联动区">
+            <div className="security-floorband security-floorband--floating">
+              <div className="security-floorband__header">
+                <span>底部联动区</span>
+                <strong>事件联动、设备健康与巡检策略围绕主楼展开</strong>
+              </div>
+            </div>
 
-        <section className="security-modules">
-          {modules.map((module) => (
-            <article key={module.title} className="security-module">
-              <span>{module.eyebrow}</span>
-              <h2>{module.title}</h2>
-              <p>{module.body}</p>
-            </article>
-          ))}
+            <section className="security-modules security-modules--floating">
+              {modules.map((module) => (
+                <article key={module.title} className="security-module">
+                  <span>{module.eyebrow}</span>
+                  <h2>{module.title}</h2>
+                  <p>{module.body}</p>
+                </article>
+              ))}
+            </section>
+          </section>
         </section>
       </main>
     </div>

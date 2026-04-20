@@ -16,6 +16,7 @@ const toneByPath = {
   '/glassmorphism-dashboard': 'glass',
   '/banking-app': 'signal',
   '/thermodynamics': 'thermal',
+  '/security-digital-twin': 'sentinel',
 };
 
 /* ===== Hero animated canvas ===== */

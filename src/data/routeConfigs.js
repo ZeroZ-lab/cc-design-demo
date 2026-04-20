@@ -12,6 +12,7 @@ const RetroPixelPage = lazy(() => import('../pages/RetroPixelPage'));
 const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDashboardPage'));
 const BankingAppPage = lazy(() => import('../pages/BankingAppPage'));
 const ThermodynamicsPage = lazy(() => import('../pages/ThermodynamicsPage'));
+const SecurityDigitalTwinPage = lazy(() => import('../pages/SecurityDigitalTwinPage'));
 
 export const routeConfigs = [
   {
@@ -123,6 +124,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #4fc3f7, #b388ff)',
     tags: ['Glassmorphism', '3D tilt', 'Parallax', 'Data viz'],
     component: GlassmorphismDashboardPage
+  },
+  {
+    path: '/security-digital-twin',
+    title: 'Guardian Twin — 楼宇安防数字孪生',
+    label: 'Security Twin',
+    name: 'Guardian Twin',
+    summary: '透明楼宇 WebGL 数字孪生驾驶舱，聚合楼层态势、安防告警、设备健康与巡检联动。',
+    accent: 'linear-gradient(135deg, #8cf3ff, #4ad7b0)',
+    tags: ['Three.js', 'Digital twin', 'Security ops'],
+    component: SecurityDigitalTwinPage
   },
   {
     path: '/thermodynamics',

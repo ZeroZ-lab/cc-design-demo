@@ -17,6 +17,9 @@ importers:
       react-router-dom:
         specifier: ^7.9.4
         version: 7.14.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      three:
+        specifier: ^0.184.0
+        version: 0.184.0
     devDependencies:
       '@vitejs/plugin-react':
         specifier: ^5.1.0
@@ -590,6 +593,9 @@ packages:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
     engines: {node: '>=0.10.0'}
 
+  three@0.184.0:
+    resolution: {integrity: sha512-wtTRjG92pM5eUg/KuUnHsqSAlPM296brTOcLgMRqEeylYTh/CdtvKUvCyyCQTzFuStieWxvZb8mVTMvdPyUpxg==}
+
   tinyglobby@0.2.16:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
@@ -1115,6 +1121,8 @@ snapshots:
   set-cookie-parser@2.7.2: {}
 
   source-map-js@1.2.1: {}
+
+  three@0.184.0: {}
 
   tinyglobby@0.2.16:
     dependencies:

@@ -2091,3 +2091,254 @@ a {
     min-height: 460px;
   }
 }
+
+@media (orientation: landscape) and (max-height: 540px) {
+  .security-page {
+    min-height: 100dvh;
+  }
+
+  .security-topbar,
+  .security-main {
+    width: 100vw;
+  }
+
+  .security-topbar {
+    padding: 10px 12px 6px;
+    gap: 10px;
+  }
+
+  .security-brand__mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 0.84rem;
+  }
+
+  .security-brand__copy strong {
+    font-size: 0.92rem;
+  }
+
+  .security-brand__copy em {
+    font-size: 0.68rem;
+  }
+
+  .security-topbar__meta {
+    gap: 8px;
+  }
+
+  .security-pill,
+  .security-topbar__campus,
+  .security-topbar__time {
+    padding: 7px 10px;
+    font-size: 0.68rem;
+  }
+
+  .security-main {
+    padding: 6px 12px 10px;
+  }
+
+  .security-overview {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .security-overview__title,
+  .security-sidebar,
+  .security-floorband,
+  .security-module,
+  .security-hero__stage {
+    border-radius: 18px;
+  }
+
+  .security-overview__title {
+    padding: 14px 16px;
+  }
+
+  .security-kicker {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+  }
+
+  .security-overview__title h1 {
+    margin: 10px 0 8px;
+    font-size: clamp(1.65rem, 3.4vw, 2.3rem);
+  }
+
+  .security-overview__title p {
+    font-size: 0.72rem;
+    line-height: 1.45;
+    max-width: none;
+  }
+
+  .security-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .security-metrics article {
+    padding: 12px 10px;
+    border-radius: 14px;
+  }
+
+  .security-metrics strong,
+  .security-panel__stats strong {
+    font-size: 1.18rem;
+  }
+
+  .security-metrics span,
+  .security-panel__stats span {
+    margin-top: 4px;
+    font-size: 0.58rem;
+  }
+
+  .security-dashboard {
+    grid-template-columns: minmax(180px, 0.72fr) minmax(0, 1.55fr) minmax(210px, 0.86fr);
+    gap: 10px;
+    min-height: calc(100dvh - 150px);
+  }
+
+  .security-sidebar {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .security-panel {
+    padding: 10px;
+    border-radius: 16px;
+  }
+
+  .security-panel h2 {
+    font-size: 1.28rem;
+    margin: 8px 0;
+  }
+
+  .security-panel p,
+  .security-module p {
+    font-size: 0.72rem;
+    line-height: 1.45;
+  }
+
+  .security-panel__stats {
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .security-panel__stats > div {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .security-panel__head {
+    margin-bottom: 10px;
+  }
+
+  .security-panel__eyebrow {
+    font-size: 0.58rem;
+  }
+
+  .security-panel__head strong {
+    font-size: 0.84rem;
+  }
+
+  .security-alerts,
+  .security-zones {
+    gap: 8px;
+  }
+
+  .security-alert,
+  .security-zone {
+    padding: 9px 10px;
+    border-radius: 12px;
+  }
+
+  .security-alert strong,
+  .security-zone strong,
+  .security-floorpill strong {
+    font-size: 0.72rem;
+  }
+
+  .security-alert__time,
+  .security-alert em,
+  .security-zone span,
+  .security-zone em,
+  .security-floorpill em {
+    font-size: 0.58rem;
+  }
+
+  .security-hero__stage,
+  .security-scene {
+    min-height: calc(100dvh - 180px);
+  }
+
+  .security-stage__overlay {
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+
+  .security-stage__overlay span {
+    font-size: 0.56rem;
+  }
+
+  .security-stage__overlay strong {
+    font-size: 0.76rem;
+  }
+
+  .security-stage__overlay--left {
+    left: 10px;
+    top: 10px;
+  }
+
+  .security-stage__overlay--right {
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .security-floorband {
+    margin-top: 10px;
+    padding: 10px 12px;
+  }
+
+  .security-floorband__header {
+    margin-bottom: 0;
+  }
+
+  .security-floorband__header span,
+  .security-floorband__header strong {
+    font-size: 0.64rem;
+  }
+
+  .security-floorband__list--panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .security-floorpill {
+    padding: 10px 9px;
+    border-radius: 12px;
+  }
+
+  .security-floorpill span {
+    font-size: 0.86rem;
+  }
+
+  .security-modules {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .security-module {
+    padding: 12px;
+    border-radius: 16px;
+  }
+
+  .security-module span {
+    font-size: 0.56rem;
+  }
+
+  .security-module h2 {
+    margin: 8px 0 6px;
+    font-size: 1rem;
+  }
+}

@@ -13,6 +13,7 @@ const GlassmorphismDashboardPage = lazy(() => import('../pages/GlassmorphismDash
 const BankingAppPage = lazy(() => import('../pages/BankingAppPage'));
 const ThermodynamicsPage = lazy(() => import('../pages/ThermodynamicsPage'));
 const SecurityDigitalTwinPage = lazy(() => import('../pages/SecurityDigitalTwinPage'));
+const IPhoneHomeShowcasePage = lazy(() => import('../pages/IPhoneHomeShowcasePage'));
 
 export const routeConfigs = [
   {
@@ -124,6 +125,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #4fc3f7, #b388ff)',
     tags: ['Glassmorphism', '3D tilt', 'Parallax', 'Data viz'],
     component: GlassmorphismDashboardPage
+  },
+  {
+    path: '/iphone-home-showcase',
+    title: 'iPhone - 首页展示官网',
+    label: 'iPhone',
+    name: 'iPhone Home Showcase',
+    summary: '独立设计的 iPhone 首页展示官网，强调钛金属质感、主页动线和 Apple 级产品发布节奏。',
+    accent: 'linear-gradient(135deg, #f8f4ec, #7d91ff)',
+    tags: ['Product page', 'Motion', 'Editorial', 'Mobile'],
+    component: IPhoneHomeShowcasePage
   },
   {
     path: '/security-digital-twin',

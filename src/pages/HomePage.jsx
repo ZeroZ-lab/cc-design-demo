@@ -17,6 +17,7 @@ const toneByPath = {
   '/banking-app': 'signal',
   '/thermodynamics': 'thermal',
   '/security-digital-twin': 'sentinel',
+  '/iphone-home-showcase': 'chrome',
 };
 
 /* ===== Hero animated canvas — soft aurora blobs ===== */

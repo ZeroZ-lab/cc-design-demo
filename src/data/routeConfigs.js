@@ -14,6 +14,7 @@ const BankingAppPage = lazy(() => import('../pages/BankingAppPage'));
 const ThermodynamicsPage = lazy(() => import('../pages/ThermodynamicsPage'));
 const SecurityDigitalTwinPage = lazy(() => import('../pages/SecurityDigitalTwinPage'));
 const IPhoneHomeShowcasePage = lazy(() => import('../pages/IPhoneHomeShowcasePage'));
+const TibetVillaConceptPage = lazy(() => import('../pages/TibetVillaConceptPage'));
 
 export const routeConfigs = [
   {
@@ -135,6 +136,16 @@ export const routeConfigs = [
     accent: 'linear-gradient(135deg, #f8f4ec, #7d91ff)',
     tags: ['Product page', 'Motion', 'Editorial', 'Mobile'],
     component: IPhoneHomeShowcasePage
+  },
+  {
+    path: '/tibet-villa-concept',
+    title: '冈仁波境 — 西藏山地别墅概念页',
+    label: 'Tibet Villa',
+    name: '冈仁波境',
+    summary: '以真实西藏地景素材为氛围基础的高净值山地别墅概念页，内含 3 种克制奢雅风格切换。',
+    accent: 'linear-gradient(135deg, #f3e5c8, #8c6d47)',
+    tags: ['Property', 'Editorial', 'Three styles', 'Concept'],
+    component: TibetVillaConceptPage
   },
   {
     path: '/security-digital-twin',

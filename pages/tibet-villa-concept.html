@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>冈仁波境 · 西藏山地别墅概念页</title>
+<!--
+My assumptions:
+- This is for ultra-high-net-worth buyers seeking a symbolic retreat rather than a primary urban residence.
+- Overall tone: restrained luxury, editorial, altitude-driven, materially grounded.
+- Main flow: terrain presence → product positioning → residence mood → cultural context → private invitation.
+- Color direction: warm stone by default; alternate directions are bronze night and pale mineral. Unsure whether you want the final route to stay warm or go darker.
+
+Unresolved questions:
+- Project naming is fictional — using "冈仁波境" as a poetic placeholder for now.
+- Product facts such as plot size, villa count, pricing, and launch timeline are intentionally omitted to avoid fabricated sales claims.
+
+If the direction feels wrong, now is the cheapest moment to change it.
+-->
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #f2eee6;
+    --surface: rgba(255, 250, 241, 0.62);
+    --surface-strong: rgba(255, 250, 241, 0.9);
+    --ink: #211c17;
+    --muted: rgba(33, 28, 23, 0.64);
+    --line: rgba(78, 63, 44, 0.16);
+    --accent: #8c6d47;
+    --accent-soft: rgba(140, 109, 71, 0.16);
+    --image-filter: saturate(0.92) contrast(1.04) brightness(0.96);
+    --panel-shadow: 0 28px 80px rgba(44, 33, 21, 0.12);
+    --section-gap: 112px;
+    --content-width: min(1380px, calc(100vw - 56px));
+  }
+
+  html[data-theme="night"] {
+    --bg: #171310;
+    --surface: rgba(34, 28, 23, 0.72);
+    --surface-strong: rgba(39, 31, 25, 0.92);
+    --ink: #efe6d7;
+    --muted: rgba(239, 230, 215, 0.7);
+    --line: rgba(231, 214, 188, 0.14);
+    --accent: #b98a56;
+    --accent-soft: rgba(185, 138, 86, 0.18);
+    --image-filter: saturate(0.82) contrast(1.08) brightness(0.78);
+    --panel-shadow: 0 24px 90px rgba(0, 0, 0, 0.34);
+  }
+
+  html[data-theme="mineral"] {
+    --bg: #dde5e6;
+    --surface: rgba(246, 250, 250, 0.72);
+    --surface-strong: rgba(248, 252, 252, 0.94);
+    --ink: #172124;
+    --muted: rgba(23, 33, 36, 0.68);
+    --line: rgba(23, 33, 36, 0.12);
+    --accent: #6b7d80;
+    --accent-soft: rgba(107, 125, 128, 0.14);
+    --image-filter: saturate(0.85) contrast(1.02) brightness(0.98);
+    --panel-shadow: 0 28px 80px rgba(22, 33, 36, 0.14);
+  }
+
+  html[data-density="compact"] {
+    --section-gap: 84px;
+  }
+
+  html[data-density="airy"] {
+    --section-gap: 132px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    font-family: 'Manrope', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+    background:
+      radial-gradient(circle at top left, rgba(255,255,255,0.6), transparent 28%),
+      linear-gradient(180deg, rgba(255,255,255,0.12), transparent 18%),
+      var(--bg);
+    transition: background 0.35s ease, color 0.35s ease;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input {
+    font: inherit;
+  }
+
+  .page-shell {
+    position: relative;
+    overflow: clip;
+  }
+
+  .page-shell::before,
+  .page-shell::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-shell::before {
+    opacity: 0.36;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size: 120px 120px;
+    mask-image: linear-gradient(180deg, black 0%, transparent 70%);
+  }
+
+  .page-shell::after {
+    background:
+      radial-gradient(circle at 78% 16%, var(--accent-soft), transparent 24%),
+      radial-gradient(circle at 16% 8%, rgba(255,255,255,0.22), transparent 16%);
+  }
+
+  .topbar,
+  .hero,
+  .section,
+  .footer {
+    width: var(--content-width);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .topbar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 0 0;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  .brand-mark {
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: 1.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .brand-copy {
+    display: grid;
+    gap: 2px;
+  }
+
+  .brand-copy strong {
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .brand-copy span,
+  .meta-row {
+    color: var(--muted);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .topnav {
+    justify-self: center;
+    display: flex;
+    gap: 28px;
+  }
+
+  .topnav a {
+    position: relative;
+    padding-bottom: 8px;
+    color: var(--muted);
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .topnav a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.22s ease;
+  }
+
+  .topnav a:hover::after {
+    transform: scaleX(1);
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
+    gap: 36px;
+    padding: 54px 0 28px;
+    min-height: calc(100vh - 24px);
+    align-items: end;
+  }
+
+  .hero-copy {
+    display: grid;
+    gap: 28px;
+    align-self: center;
+    padding: 18px 0 42px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
+    padding: 9px 14px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    backdrop-filter: blur(16px);
+    font-size: 0.76rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .hero h1 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(4rem, 9vw, 8.8rem);
+    line-height: 0.93;
+    letter-spacing: -0.035em;
+    max-width: 9.3ch;
+    text-wrap: balance;
+  }
+
+  .hero h1 .thin {
+    display: block;
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .hero-intro {
+    max-width: 560px;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.9;
+    text-wrap: pretty;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .action {
+    min-height: 48px;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--line);
+    background: var(--surface-strong);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.74rem;
+  }
+
+  .action.primary {
+    border-color: transparent;
+    background: var(--ink);
+    color: var(--bg);
+  }
+
+  .hero-notes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 760px;
+  }
+
+  .note {
+    padding: 18px 0 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .note strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.76rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .note span {
+    color: var(--muted);
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .hero-stage {
+    position: relative;
+    min-height: 780px;
+    display: grid;
+    grid-template-columns: 118px minmax(0, 1fr);
+    gap: 18px;
+    align-items: end;
+  }
+
+  .vertical-rail {
+    height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto auto;
+    gap: 16px;
+  }
+
+  .rail-copy,
+  .rail-card,
+  .gallery-card,
+  .section-panel,
+  .contact-panel,
+  .tweaks {
+    background: var(--surface);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--line);
+    box-shadow: var(--panel-shadow);
+  }
+
+  .rail-copy {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 18px 10px;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .rail-card {
+    padding: 14px 12px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .rail-card strong {
+    font-size: 1.55rem;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  }
+
+  .rail-card span {
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  .stage-visual {
+    position: relative;
+    height: 100%;
+    min-height: 720px;
+    overflow: hidden;
+    box-shadow: var(--panel-shadow);
+    border: 1px solid var(--line);
+  }
+
+  .stage-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter);
+  }
+
+  .stage-overlay {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 26px;
+    background:
+      linear-gradient(180deg, rgba(11, 11, 11, 0.08), transparent 30%, rgba(11, 11, 11, 0.48) 100%);
+    color: #f4efe8;
+  }
+
+  .stage-tag {
+    width: fit-content;
+    padding: 8px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(11,11,11,0.18);
+    backdrop-filter: blur(10px);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .stage-callout {
+    align-self: end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 230px;
+    gap: 18px;
+    align-items: end;
+  }
+
+  .stage-title {
+    padding-right: 24px;
+  }
+
+  .stage-title strong {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.74);
+  }
+
+  .stage-title h2 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(2.2rem, 4vw, 4.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .stage-title p,
+  .thumb-card p,
+  .body-copy,
+  .contact-panel p,
+  .credit-list li {
+    margin: 0;
+    line-height: 1.8;
+    text-wrap: pretty;
+  }
+
+  .stage-title p {
+    margin-top: 12px;
+    max-width: 32rem;
+    color: rgba(255,255,255,0.76);
+  }
+
+  .thumb-card {
+    padding: 16px;
+    background: rgba(18, 16, 13, 0.42);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(16px);
+  }
+
+  .thumb-card strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.74);
+  }
+
+  .thumb-card p {
+    color: rgba(255,255,255,0.84);
+    font-size: 0.92rem;
+  }
+
+  .section {
+    display: grid;
+    gap: 30px;
+    padding: var(--section-gap) 0 0;
+  }
+
+  .section-head {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: end;
+  }
+
+  .section-head small {
+    color: var(--muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .section-head h2 {
+    margin: 6px 0 0;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(2.3rem, 4vw, 4.8rem);
+    line-height: 0.96;
+    letter-spacing: -0.03em;
+  }
+
+  .section-head p {
+    margin: 0;
+    max-width: 700px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.9;
+  }
+
+  .axis-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr 0.9fr;
+    gap: 18px;
+  }
+
+  .section-panel {
+    padding: 28px;
+    min-height: 320px;
+    display: grid;
+    align-content: space-between;
+    gap: 28px;
+  }
+
+  .section-panel.large {
+    min-height: 420px;
+  }
+
+  .panel-top {
+    display: grid;
+    gap: 14px;
+  }
+
+  .panel-top span,
+  .label {
+    color: var(--muted);
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .panel-top h3 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(2rem, 3vw, 3.3rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .panel-bottom {
+    display: grid;
+    gap: 10px;
+    color: var(--muted);
+  }
+
+  .panel-bottom strong {
+    color: var(--ink);
+    font-size: 0.98rem;
+  }
+
+  .residence-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+    gap: 18px;
+  }
+
+  .image-block {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    min-height: 640px;
+    box-shadow: var(--panel-shadow);
+  }
+
+  .image-block img,
+  .gallery-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: var(--image-filter);
+  }
+
+  .image-float {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    padding: 18px 20px;
+    background: rgba(18, 16, 13, 0.42);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(16px);
+    color: #f5efe5;
+  }
+
+  .image-float strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .image-float p {
+    margin: 0;
+    font-size: 0.96rem;
+    line-height: 1.72;
+  }
+
+  .stacked-panels {
+    display: grid;
+    gap: 18px;
+  }
+
+  .stacked-panels .section-panel {
+    min-height: unset;
+  }
+
+  .material-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .material-row {
+    display: grid;
+    grid-template-columns: 92px 1fr;
+    gap: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  .material-row span:first-child {
+    color: var(--muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+  }
+
+  .material-row p {
+    margin: 0;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr 0.8fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+
+  .gallery-column {
+    display: grid;
+    gap: 18px;
+  }
+
+  .gallery-card {
+    overflow: hidden;
+    min-height: 250px;
+  }
+
+  .gallery-card.tall {
+    min-height: 520px;
+  }
+
+  .gallery-caption {
+    padding: 16px 18px 18px;
+    border-top: 1px solid var(--line);
+    background: var(--surface-strong);
+  }
+
+  .gallery-caption strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.86rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .gallery-caption span {
+    color: var(--muted);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr minmax(280px, 360px);
+    gap: 18px;
+    align-items: start;
+  }
+
+  .contact-panel {
+    padding: 30px;
+    display: grid;
+    gap: 18px;
+  }
+
+  .contact-panel h3 {
+    margin: 0;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-size: clamp(2rem, 3vw, 3.4rem);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .contact-panel p {
+    color: var(--muted);
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 30px 0 56px;
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  .credit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .tweaks {
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    z-index: 20;
+    width: min(280px, calc(100vw - 32px));
+    padding: 18px 18px 16px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .tweaks h3 {
+    margin: 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .theme-switch {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .theme-btn {
+    min-height: 42px;
+    border: 1px solid var(--line);
+    background: var(--surface-strong);
+    color: var(--ink);
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.68rem;
+  }
+
+  .theme-btn.is-active {
+    background: var(--ink);
+    color: var(--bg);
+    border-color: transparent;
+  }
+
+  .range-row {
+    display: grid;
+    gap: 8px;
+  }
+
+  .range-row input {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .range-row small {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(26px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-reveal].is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 1120px) {
+    .topbar {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .topnav {
+      justify-self: start;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .hero,
+    .axis-grid,
+    .residence-grid,
+    .gallery-grid,
+    .contact-grid,
+    .section-head {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-stage {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+
+    .vertical-rail {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: none;
+    }
+
+    .rail-copy {
+      writing-mode: horizontal-tb;
+      min-height: 120px;
+    }
+
+    .stage-visual,
+    .image-block {
+      min-height: 560px;
+    }
+
+    .stage-callout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-top: 34px;
+      min-height: auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(3.2rem, 18vw, 5rem);
+    }
+
+    .hero-copy,
+    .section {
+      gap: 22px;
+    }
+
+    .hero-notes,
+    .vertical-rail {
+      grid-template-columns: 1fr;
+    }
+
+    .stage-visual,
+    .image-block {
+      min-height: 460px;
+    }
+
+    .tweaks {
+      position: static;
+      margin: 18px auto 0;
+      width: var(--content-width);
+    }
+
+    .footer {
+      flex-direction: column;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="tweaks" data-screen-label="01 Tweaks">
+      <h3>Tweaks</h3>
+      <div class="theme-switch" aria-label="风格切换">
+        <button class="theme-btn is-active" data-theme-target="stone" type="button">Warm Stone</button>
+        <button class="theme-btn" data-theme-target="night" type="button">Bronze Night</button>
+        <button class="theme-btn" data-theme-target="mineral" type="button">Mineral Air</button>
+      </div>
+      <div class="range-row">
+        <label class="label" for="density-range">Section Density</label>
+        <input id="density-range" type="range" min="0" max="2" step="1" value="1">
+        <small>当前页提供 3 种风格，不改变项目信息，只切换气质、对比和节奏。</small>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <a class="brand" href="#hero">
+        <span class="brand-mark">KR</span>
+        <span class="brand-copy">
+          <strong>冈仁波境</strong>
+          <span>西藏山地别墅概念页</span>
+        </span>
+      </a>
+      <nav class="topnav">
+        <a href="#axis">项目主张</a>
+        <a href="#residences">产品体验</a>
+        <a href="#gallery">素材氛围</a>
+        <a href="#contact">私享预约</a>
+      </nav>
+      <div class="meta-row">Concept Property / Tibet / Villas</div>
+    </header>
+
+    <section class="hero" id="hero" data-screen-label="02 Hero">
+      <div class="hero-copy is-visible" data-reveal>
+        <div class="eyebrow">虚拟项目 · 基于真实西藏地景素材</div>
+        <h1>
+          垂直于群峰的
+          <span class="thin">私域居所</span>
+        </h1>
+        <p class="hero-intro">
+          这不是一处把奢侈搬上高原的度假酒店，而是一组为极少数买家定制的山地别墅原型。
+          页面重点不讲“配套齐全”或“销售节点”，而是直接把产品气质、停留方式与材料语言推到前景。
+        </p>
+        <div class="hero-actions">
+          <a class="action primary" href="#residences">查看产品叙事</a>
+          <a class="action" href="#gallery">浏览素材氛围</a>
+        </div>
+        <div class="hero-notes">
+          <div class="note">
+            <strong>地形逻辑</strong>
+            <span>依山展开，居所与景观的关系优先于“标准化排布”。</span>
+          </div>
+          <div class="note">
+            <strong>奢雅方式</strong>
+            <span>克制的石、木、铜与低饱和织物，不依赖浮夸亮面。</span>
+          </div>
+          <div class="note">
+            <strong>产品重点</strong>
+            <span>停留的仪式感、会客尺度、眺望体验，比销讲词更重要。</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-stage is-visible" data-reveal>
+        <div class="vertical-rail">
+          <div class="rail-copy">Altitude living / private arrival / stone and quiet light</div>
+          <div class="rail-card">
+            <strong>01</strong>
+            <span>先把群峰作为第一视觉，再把建筑退后，让产品在气场里出现。</span>
+          </div>
+          <div class="rail-card">
+            <strong>02</strong>
+            <span>不使用虚构销控数字，避免把概念页伪装成真实在售物料。</span>
+          </div>
+        </div>
+
+        <div class="stage-visual">
+          <img src="/assets/tibet-villa/namcha-barwa-sunset.jpg" alt="西藏雪山黄昏景观">
+          <div class="stage-overlay">
+            <div class="stage-tag">Terrain Mood / Namcha Barwa</div>
+            <div></div>
+            <div class="stage-callout">
+              <div class="stage-title">
+                <strong>Project Promise</strong>
+                <h2>让居所先学会安静，再谈奢侈。</h2>
+                <p>产品不是在山景前摆一组豪宅，而是把到达、转身、落座与远眺都设计成连续的高原叙事。</p>
+              </div>
+              <div class="thumb-card">
+                <strong>概念定位</strong>
+                <p>面向顶级买家的一处高原隐逸别墅群。以景观占有感、会客尊荣与精神退场感为核心卖点。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="axis" data-screen-label="03 Axis">
+      <div class="section-head" data-reveal>
+        <div>
+          <small>Project Axis</small>
+          <h2>这类别墅，不该像常规豪宅那样被销售话术先行定义。</h2>
+        </div>
+        <p>
+          所以页面里的三条主轴是明确的：先建立海拔与地形带来的稀缺感，再突出产品在视野、材质与待客方式上的差异，
+          最后才交代它与西藏文化语境之间保持尊重而非挪用的关系。
+        </p>
+      </div>
+
+      <div class="axis-grid">
+        <article class="section-panel large" data-reveal>
+          <div class="panel-top">
+            <span>Axis A</span>
+            <h3>把“远望”变成室内最昂贵的配置。</h3>
+          </div>
+          <div class="panel-bottom">
+            <strong>首层不追求满铺功能，而是给会客、壁炉、转景与端坐留出足够呼吸。</strong>
+            <div class="body-copy">对于高净值买家而言，真正的奢侈不是更多房间，而是空间在不被打断的情况下持续占有景观。</div>
+          </div>
+        </article>
+
+        <article class="section-panel" data-reveal>
+          <div class="panel-top">
+            <span>Axis B</span>
+            <h3>材质从高原气候出发。</h3>
+          </div>
+          <div class="panel-bottom">
+            <strong>石材压低浮华，木饰面补回温度，铜色只在握手处出现。</strong>
+            <div class="body-copy">这样产品看起来更像长期收藏的山地宅邸，而不是一次性的旅行消费品。</div>
+          </div>
+        </article>
+
+        <article class="section-panel" data-reveal>
+          <div class="panel-top">
+            <span>Axis C</span>
+            <h3>文化语境只做边界，不做装饰。</h3>
+          </div>
+          <div class="panel-bottom">
+            <strong>避免直接复制宗教符号，用尺度、留白与光影建立敬意。</strong>
+            <div class="body-copy">这让项目保持西藏气场，但不落入符号化“藏式”样板房。</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="residences" data-screen-label="04 Residences">
+      <div class="section-head" data-reveal>
+        <div>
+          <small>Residence Narrative</small>
+          <h2>产品表达，应当像一场私人看房，而不是信息堆砌。</h2>
+        </div>
+        <p>
+          因为你要的是概念稿，我把产品页面写成三段式体验：到达、停留、会客。
+          这样即使没有真实户型图，也能先把一个高端别墅项目最关键的感受建立出来。
+        </p>
+      </div>
+
+      <div class="residence-grid">
+        <div class="image-block" data-reveal>
+          <img src="/assets/tibet-villa/mountain-villa-reference.jpg" alt="山地别墅建筑参考">
+          <div class="image-float">
+            <strong>Arrival Reference</strong>
+            <p>以山地石构住居作为到达气质参考。正式落地时，这里可以替换成项目效果图或体量草模。</p>
+          </div>
+        </div>
+
+        <div class="stacked-panels">
+          <article class="section-panel" data-reveal>
+            <div class="panel-top">
+              <span>Arrival</span>
+              <h3>入口不直接张扬，而是先收后放。</h3>
+            </div>
+            <div class="panel-bottom">
+              <strong>车行到达后，视线先被压低，再在主客厅前完整展开。</strong>
+              <div class="body-copy">这会让第一次抵达形成清晰记忆点，也让产品显得更有节制与权威。</div>
+            </div>
+          </article>
+
+          <article class="section-panel" data-reveal>
+            <div class="panel-top">
+              <span>Stay</span>
+              <h3>主卧与温泉式卫浴不追求繁复，只追求静。</h3>
+            </div>
+            <div class="panel-bottom material-list">
+              <div class="material-row">
+                <span>窗面</span>
+                <p>更宽的横向视野，坐下也能看到山线，而不是只在站立时看见风景。</p>
+              </div>
+              <div class="material-row">
+                <span>触感</span>
+                <p>地面与家具都偏向低反光材质，避免在高原强日照下显得轻浮。</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="section-panel" data-reveal>
+            <div class="panel-top">
+              <span>Hosting</span>
+              <h3>会客区比卧室更重要。</h3>
+            </div>
+            <div class="panel-bottom">
+              <strong>真正的豪宅不靠堆功能，而靠一场晚宴、一场对谈、一段停留后的余味。</strong>
+              <div class="body-copy">页面里把公共厅堂置于叙事中心，是为了让产品卖点显得更像收藏品而不是住宿单元。</div>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="residence-grid">
+        <article class="section-panel large" data-reveal>
+          <div class="panel-top">
+            <span>Interior Mood</span>
+            <h3>内部不是“藏式装修”，而是山地礼序下的现代安静。</h3>
+          </div>
+          <div class="panel-bottom">
+            <strong>光线、木梁与石地面形成柔和层次，让空间的贵重感来自时间感，而不是装饰感。</strong>
+            <div class="body-copy">真实落地时，这一段很适合替换为样板间或材料板，页面结构已经为后续升级预留好了位置。</div>
+          </div>
+        </article>
+
+        <div class="image-block" data-reveal>
+          <img src="/assets/tibet-villa/interior-reference.jpg" alt="木石质感室内参考">
+          <div class="image-float">
+            <strong>Interior Moodboard</strong>
+            <p>参考图用于表达木、石、暖光和低饱和织物的共存关系，不作为最终室内方案定稿。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery" data-screen-label="05 Gallery">
+      <div class="section-head" data-reveal>
+        <div>
+          <small>Source Atmosphere</small>
+          <h2>真实素材承担“气候”与“地理”，让概念页先有可信的呼吸。</h2>
+        </div>
+        <p>
+          我没有把这些照片包装成项目实景，而是把它们作为地貌、光线、文化视角与度假建构感的真实来源。
+          这样概念页既有质感，也不会把虚拟项目伪造成现房宣传。
+        </p>
+      </div>
+
+      <div class="gallery-grid">
+        <div class="gallery-column">
+          <figure class="gallery-card tall" data-reveal>
+            <img src="/assets/tibet-villa/tibet-valley.jpg" alt="西藏山谷景观">
+            <figcaption class="gallery-caption">
+              <strong>Valley Horizon</strong>
+              <span>适合作为区位与山谷面宽的氛围底图，强调居所与广阔地形的关系。</span>
+            </figcaption>
+          </figure>
+        </div>
+
+        <div class="gallery-column">
+          <figure class="gallery-card" data-reveal>
+            <img src="/assets/tibet-villa/potala-autumn.jpg" alt="布达拉宫秋季景观">
+            <figcaption class="gallery-caption">
+              <strong>Cultural Distance</strong>
+              <span>文化感点到即止。不是直接挪用符号，而是提醒项目所处的精神背景。</span>
+            </figcaption>
+          </figure>
+          <article class="section-panel" data-reveal>
+            <div class="panel-top">
+              <span>How To Upgrade</span>
+              <h3>如果后续进入第二轮，我建议补三类素材。</h3>
+            </div>
+            <div class="panel-bottom">
+              <strong>项目总图、单栋体量草模、材料板。</strong>
+              <div class="body-copy">一旦有这三类信息，这个概念页可以直接升级为更像真实开发商提报版本的产品官网首稿。</div>
+            </div>
+          </article>
+        </div>
+
+        <div class="gallery-column">
+          <article class="section-panel large" data-reveal>
+            <div class="panel-top">
+              <span>Style Snapshot</span>
+              <h3>Warm Stone 更像高端册页，Bronze Night 更像私享会邀请函，Mineral Air 更像建筑事务所提案。</h3>
+            </div>
+            <div class="panel-bottom">
+              <strong>你现在可以直接用右上 tweaks 切换视觉方向。</strong>
+              <div class="body-copy">三种风格公用同一套内容结构，这样你后面选定方向之后不会推倒重来。</div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact" data-screen-label="06 Contact">
+      <div class="section-head" data-reveal>
+        <div>
+          <small>Private Invitation</small>
+          <h2>收尾不必喊口号，只要保留一丝被邀请进入的门槛感。</h2>
+        </div>
+        <p>
+          概念稿阶段，最合适的收尾不是“立即抢购”，而是一种只对少量人开放的私密邀请语气。
+          这更符合高净值别墅项目的心理预期，也更克制。
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-panel" data-reveal>
+          <span class="label">Private Preview</span>
+          <h3>预约一场只讲产品本身的山地会面。</h3>
+          <p>
+            如果你希望下一版更像真实提案，我可以继续把这一页细化成“开发商官网首页”或“项目提报封面页”，
+            并接着补一个户型亮点模块与一个地形总图模块。
+          </p>
+          <div class="contact-row">
+            <a class="action primary" href="#hero">回到首屏</a>
+            <a class="action" href="#gallery">查看素材来源</a>
+          </div>
+        </div>
+
+        <div class="contact-panel" data-reveal>
+          <span class="label">Concept Note</span>
+          <p>本页项目名称、产品信息与销售语境均为虚构，仅使用真实公开图片作为氛围与地理参考。</p>
+          <p>适合当前阶段：提方向、看气质、挑视觉系统。还不适合当前阶段：硬性销售口径、价格表、真实区位声明。</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>页面类型：房地产概念站 / 独立可分享单页 / 三风格切换</div>
+      <ul class="credit-list">
+        <li>素材来源：Pexels 上的西藏与山地住居公开图片</li>
+        <li>摄影者：Lywin、云严、Valentin Ivantsov、Alexander F Ungerer</li>
+        <li>用途：概念页氛围展示，不代表真实在售项目实景</li>
+      </ul>
+    </footer>
+  </div>
+
+  <script>
+    const root = document.documentElement;
+    const buttons = [...document.querySelectorAll('.theme-btn')];
+    const densityInput = document.getElementById('density-range');
+    const densityMap = ['compact', 'default', 'airy'];
+    const revealNodes = [...document.querySelectorAll('[data-reveal]')];
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => {
+        buttons.forEach((item) => item.classList.remove('is-active'));
+        button.classList.add('is-active');
+        const nextTheme = button.dataset.themeTarget;
+        root.dataset.theme = nextTheme === 'stone' ? '' : nextTheme;
+      });
+    });
+
+    densityInput.addEventListener('input', () => {
+      const density = densityMap[Number(densityInput.value)] || 'default';
+      root.dataset.density = density === 'default' ? '' : density;
+    });
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.12 });
+
+    revealNodes.forEach((node) => revealObserver.observe(node));
+  </script>
+</body>
+</html>
